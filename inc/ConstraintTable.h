@@ -49,6 +49,8 @@ protected:
     int ct_max_timestep = 0;
     // typedef unordered_map<size_t, set< pair<int, int> > > CAT; // conflict avoidance table // location -> time range, or edge -> time range
     typedef vector< vector<bool> > CAT;
+    // vector< vector<bool> >
+    // cat[location][time] == true: if location is occupied at this time
     CAT cat;
     int cat_max_timestep = 0;
     vector<int> cat_goals;

@@ -1,26 +1,29 @@
 #pragma once
 #include "common.h"
 
-
+// MUTEX, TARGET, CORRIDOR, RECTANGLE, STANDARD
 enum conflict_type { MUTEX, TARGET, CORRIDOR, RECTANGLE, STANDARD, TYPE_COUNT };
 
 enum conflict_priority { CARDINAL, PSEUDO_CARDINAL, SEMI, NON, UNKNOWN, PRIORITY_COUNT };
 // Pseudo-cardinal conflicts are semi-/non-caridnal conflicts between dependent agents. 
 // We prioritize them over normal semi-/non-caridnal conflicts 
 
+// LEQLENGTH, GLENGTH, RANGE, BARRIER, VERTEX, EDGE, POSITIVE_VERTEX, POSITIVE_EDGE
 enum constraint_type { LEQLENGTH, GLENGTH, RANGE, BARRIER, VERTEX, EDGE, 
 											POSITIVE_VERTEX, POSITIVE_EDGE, CONSTRAINT_COUNT};
 
 enum conflict_selection {RANDOM, EARLIEST, CONFLICTS, MCONSTRAINTS, FCONSTRAINTS, WIDTH, SINGLETONS};
 
+/** <agent, loc, -1, t, VERTEX>: agent can't be at loc at timestep t
+ * <agent, loc, -1, t, POSITIVE_VERTEX>: agent has to be at loc at timestep t (see [ConstraintTable::insertLandmark])
+ * <agent, from, to, t, EDGE>: agent can't be at from or to at timestep t
+ * <agent, from, to, t, POSITIVE_EDGE>: agent has to be at `from` at timestep t-1, at `to` at timestep t (see [ConstraintTable::insertLandmark]).
+ * <agent, B1, B2, t, BARRIER>: I don't really know yet. See RectangleReasoning.cpp
+ * <agent, loc, t1, t2, RANGE>: agent can't be at loc from timestamp t1 to t2.
+ * <agent, loc, -1, t, LEQLENGTH>: path of agent_id should be of length at most t, and any other agent cannot be at loc at or after timestep t
+ * <agent, loc, -1, t, GLENGTH>: path of agent_id should be of length at least t + 1
+ */
 typedef std::tuple<int, int, int, int, constraint_type> Constraint;
-// <agent, loc, -1, t, VERTEX>
-// <agent, loc, -1, t, POSITIVE_VERTEX>
-// <agent, from, to, t, EDGE> 
-// <agent, B1, B2, t, BARRIER>
-// <agent, loc, t1, t2, CORRIDOR> 
-// <agent, loc, -1, t, LEQLENGTH>: path of agent_id should be of length at most t, and any other agent cannot be at loc at or after timestep t
-// <agent, loc, -1, t, GLENGTH>: path of agent_id should be of length at least t + 1
 
 std::ostream& operator<<(std::ostream& os, const Constraint& constraint);
 

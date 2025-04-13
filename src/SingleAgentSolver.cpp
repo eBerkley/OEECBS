@@ -8,7 +8,7 @@ list<int> SingleAgentSolver::getNextLocations(int curr) const // including itsel
 	return rst;
 }
 
-
+// Straightforward pathfinding algorithm; calculate the min cost of going to a location, especially including goal.
 void SingleAgentSolver::compute_heuristics()
 {
 	struct Node

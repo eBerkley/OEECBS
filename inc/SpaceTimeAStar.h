@@ -70,7 +70,9 @@ private:
 	// define typedefs and handles for heap
 	typedef pairing_heap< AStarNode*, compare<AStarNode::compare_node> > heap_open_t;
 	typedef pairing_heap< AStarNode*, compare<AStarNode::secondary_compare_node> > heap_focal_t;
+	// pairing_heap< AStarNode*, compare<AStarNode::compare_node> > 
 	heap_open_t open_list;
+	// pairing_heap< AStarNode*, compare<AStarNode::secondary_compare_node> >
 	heap_focal_t focal_list;
 
 	// define typedef for hash_map
