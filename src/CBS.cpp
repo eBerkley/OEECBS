@@ -138,6 +138,7 @@ void CBS::findConflicts(HLNode& curr)
 		copyConflicts(curr.parent->unknownConf, curr.unknownConf, new_agents);
 
 		// detect new conflicts
+		// a1 is a replanned agent, a2 can be planned or unplanned, but can't be an agent a1 has been.
 		for (auto it = new_agents.begin(); it != new_agents.end(); ++it)
 		{
 			int a1 = *it;
