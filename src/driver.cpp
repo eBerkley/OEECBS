@@ -21,6 +21,10 @@ int main(int argc, char** argv)
 	desc.add_options()
 		("help", "produce help message")
 
+		// Custom one for the online version
+		("online, on", po::value<bool>()->default_value(false), "use the online solver")
+
+
 		// params for the input instance and experiment settings
 		("map,m", po::value<string>()->required(), "input file for map")
 		("agents,a", po::value<string>()->required(), "input file for agents")
@@ -139,7 +143,29 @@ int main(int argc, char** argv)
 	int runs = 1 + vm["restart"].as<int>();
 	//////////////////////////////////////////////////////////////////////
     // initialize the solver
-	if (vm["lowLevelSolver"].as<bool>())
+	if (vm["online"].as<bool>()){
+		cout << "TESTING ONLINE" << endl;
+		// Default setup stuff
+		ECBS ecbs(instance, vm["sipp"].as<bool>(), vm["screen"].as<int>());
+        ecbs.setPrioritizeConflicts(vm["prioritizingConflicts"].as<bool>());
+        ecbs.setDisjointSplitting(vm["disjointSplitting"].as<bool>());
+        ecbs.setBypass(vm["bypass"].as<bool>());
+        ecbs.setRectangleReasoning(vm["rectangleReasoning"].as<bool>());
+        ecbs.setCorridorReasoning(vm["corridorReasoning"].as<bool>());
+        ecbs.setHeuristicType(h, h_hat);
+        ecbs.setTargetReasoning(vm["targetReasoning"].as<bool>());
+        ecbs.setMutexReasoning(false);
+        ecbs.setConflictSelectionRule(conflict);
+        ecbs.setNodeSelectionRule(n);
+        ecbs.setSavingStats(vm["stats"].as<bool>());
+        ecbs.setHighLevelSolver(s, vm["suboptimality"].as<double>());
+		// A place to put the main game loop
+		while(true){
+
+			break;
+		}
+	}
+	else if (vm["lowLevelSolver"].as<bool>())
     {
         ECBS ecbs(instance, vm["sipp"].as<bool>(), vm["screen"].as<int>());
         ecbs.setPrioritizeConflicts(vm["prioritizingConflicts"].as<bool>());
