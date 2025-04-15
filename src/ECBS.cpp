@@ -3,6 +3,7 @@
 bool ECBS::solveReplan(double time_limit, int _cost_lowerbound) {
 	assert(batch != 0);
 	assert(batch < agent_sets.size());
+	runtime = 0;
 	num_of_agents += agent_sets[batch].second;
 
 	switch (replanner) {

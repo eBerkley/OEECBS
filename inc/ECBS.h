@@ -25,6 +25,10 @@ ECBS(Instance& instance, bool sipp, int screen) : CBS(instance, sipp, screen), i
 	// ONLINE STUFF
 	bool solveReplan(double time_limit, int _cost_lowerbound);
 
+	bool nextBatch() {
+		batch++;
+		return batch >= agent_sets.size();
+	}
 private:
 	// We are gonna be lazy here... lol
 	Instance& instance;
@@ -39,7 +43,7 @@ private:
 
 	bool generateRootSingleGroup();
 	bool generateChildSingleGroup(ECBSNode* node, ECBSNode* parent);
-	
+
 	replan_type replanner;
 
 	vector<int> min_f_vals; // lower bounds of the cost of the shortest path

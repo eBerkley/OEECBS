@@ -23,7 +23,7 @@ int main(int argc, char** argv)
 
 		// Custom one for the online version
 		("online, on", po::value<bool>()->default_value(false), "use the online solver")
-
+		("replan_type,r", po::value<int>()->default_value(0), "replan type, ignored for offline solver. (0: single, 1: single group, 2: all)")
 
 		// params for the input instance and experiment settings
 		("map,m", po::value<string>()->required(), "input file for map")
@@ -146,7 +146,23 @@ int main(int argc, char** argv)
 	if (vm["online"].as<bool>()){
 		cout << "TESTING ONLINE" << endl;
 		// Default setup stuff
-		ECBS ecbs(instance, vm["sipp"].as<bool>(), vm["screen"].as<int>());
+		replan_type rtype;
+		switch (vm["replan_type"].as<int>()) {
+			case 0:
+				rtype = replan_type::REPLAN_SINGLE;
+				break;
+			case 1: 
+				rtype = replan_type::REPLAN_SINGLE_GROUP;
+				break;
+			case 2:
+				rtype = replan_type::REPLAN_ALL;
+				break;
+			default:
+				cerr << "invalid replan type: " << vm["replan_type"].as<int>() << endl;
+				return -1;
+		}
+
+		ECBS ecbs(instance, vm["sipp"].as<bool>(), vm["screen"].as<int>(), rtype);
         ecbs.setPrioritizeConflicts(vm["prioritizingConflicts"].as<bool>());
         ecbs.setDisjointSplitting(vm["disjointSplitting"].as<bool>());
         ecbs.setBypass(vm["bypass"].as<bool>());
@@ -160,10 +176,30 @@ int main(int argc, char** argv)
         ecbs.setSavingStats(vm["stats"].as<bool>());
         ecbs.setHighLevelSolver(s, vm["suboptimality"].as<double>());
 		// A place to put the main game loop
-		while(true){
+		double runtime = 0;
+    int lowerbound = 0;
 
-			break;
+		ecbs.solve(vm["cutoffTime"].as<double>() / runs, lowerbound);
+		runtime += ecbs.runtime;
+		
+		while(ecbs.nextBatch()){
+			ecbs.solveReplan(vm["cutoffTime"].as<double>() / runs, lowerbound);
+			runtime += ecbs.runtime;
 		}
+
+		ecbs.runtime = runtime;
+		
+		if (vm.count("output"))
+			ecbs.saveResults(vm["output"].as<string>(), vm["agents"].as<string>());
+		
+		if (ecbs.solution_found && vm.count("outputPaths"))
+			ecbs.savePaths(vm["outputPaths"].as<string>());
+		
+		if (vm["stats"].as<bool>())
+			ecbs.saveStats(vm["output"].as<string>(), vm["agents"].as<string>());
+
+		ecbs.clearSearchEngines();
+
 	}
 	else if (vm["lowLevelSolver"].as<bool>())
     {
