@@ -78,7 +78,20 @@ bool ECBS::solveReplanSingleGroup(double time_limit, int _cost_lowerbound) {
         foundBypass = false;
 				ECBSNode* child[2] = { new ECBSNode() , new ECBSNode() };
 				curr->conflict = chooseConflict(*curr);
+
 				addConstraints(curr, child[0], child[1]);
+        // Don't expand nodes where an agent can't be replanned.
+        if (curr->conflict->a1 < num_of_agents - agent_sets[batch].second) {
+          assert(curr->conflict->a2 >= num_of_agents - agent_sets[batch].second);
+          delete child[0];
+          child[0] = nullptr;
+        }
+        if  (curr->conflict->a2 < num_of_agents - agent_sets[batch].second) {
+          assert(child[0] != nullptr);
+          delete child[1];
+          child[1] = nullptr;
+        }
+
 				if (screen > 1)
 					cout << "	Expand " << *curr << endl << 	"	on " << *(curr->conflict) << endl;
 
@@ -87,12 +100,16 @@ bool ECBS::solveReplanSingleGroup(double time_limit, int _cost_lowerbound) {
 				vector<int> fmin_copy(min_f_vals);
 				for (int i = 0; i < 2; i++)
 				{
+          if (child[i] == nullptr) {
+            continue;
+          }
+
 					if (i > 0)
 					{
 						paths = path_copy;
 						min_f_vals = fmin_copy;
 					}
-					solved[i] = generateChild(child[i], curr);
+					solved[i] = generateChildSingleGroup(child[i], curr);
 					if (!solved[i])
 					{
 						delete (child[i]);
@@ -131,7 +148,8 @@ bool ECBS::solveReplanSingleGroup(double time_limit, int _cost_lowerbound) {
 				{
 					for (auto & i : child)
 					{
-						delete i;
+            if (i != nullptr)
+						  delete i;
 					}
                     classifyConflicts(*curr); // classify the new-detected conflicts
 				}
@@ -157,6 +175,16 @@ bool ECBS::solveReplanSingleGroup(double time_limit, int _cost_lowerbound) {
 			ECBSNode* child[2] = { new ECBSNode() , new ECBSNode() };
 			curr->conflict = chooseConflict(*curr);
 			addConstraints(curr, child[0], child[1]);
+      if (curr->conflict->a1 < num_of_agents - agent_sets[batch].second) {
+        assert(curr->conflict->a2 >= num_of_agents - agent_sets[batch].second);
+        delete child[0];
+        child[0] = nullptr;
+      }
+      if  (curr->conflict->a2 < num_of_agents - agent_sets[batch].second) {
+        assert(child[0] != nullptr);
+        delete child[1];
+        child[1] = nullptr;
+      }
 
 			if (screen > 1)
 				cout << "	Expand " << *curr << endl << "	on " << *(curr->conflict) << endl;
@@ -166,12 +194,15 @@ bool ECBS::solveReplanSingleGroup(double time_limit, int _cost_lowerbound) {
 			vector<int> fmin_copy(min_f_vals);
 			for (int i = 0; i < 2; i++)
 			{
+        if (child[i] == nullptr) {
+          continue;
+        }
 				if (i > 0)
 				{
 					paths = path_copy;
 					min_f_vals = fmin_copy;
 				}
-				solved[i] = generateChild(child[i], curr);
+				solved[i] = generateChildSingleGroup(child[i], curr);
 				if (!solved[i])
 				{
 					delete (child[i]);
