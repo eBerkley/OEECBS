@@ -41,13 +41,21 @@ Instance::Instance(const string& map_fname, const string& agent_fname,
 			exit(-1);
 		}
 	}
-
 }
+
+struct agent {
+    int start_row;
+	int start_col;
+    int goal_row;
+    int goal_col;
+	int spawn_time;
+};
+
 /* The idea is that this function will add n amounts of agents to a random position
  * On the current map. 
  * PARAMS: amt_agents is the number of agents to add
  */
-void Instance::AddAgent(int amt_agents){
+void Instance::AddRandAgents(int amt_agents){
 	cout << "Adding " << num_of_agents << " agents to instance " << endl;
 	vector<bool> starts(map_size, false);
 	vector<bool> goals(map_size, false);
@@ -96,11 +104,46 @@ void Instance::AddAgent(int amt_agents){
 	num_of_agents += amt_agents;
 }
 
+void Instance::AddSingleAgent(const Agent& agent){
+	cout << "Adding " << num_of_agents << " agents to instance " << endl;
+	vector<bool> starts(map_size, false);
+	vector<bool> goals(map_size, false);
+
+	// Mark existing start and goal locations
+	for (int loc : agent_location){
+		if (loc == agent.start_locaton){
+			cout << "Agent spawn location collided" << endl;
+			return;
+		}
+	}
+	// Check for conflictics 
+	if(my_map[agent.start_locaton] >= 0){
+		cout << "agent collided with map" << endl;
+		return;
+	}
+
+	// Resize vectors to accommodate new agents
+	agent_location.resize(num_of_agents + 1, -1);
+	goal_locations.resize(num_of_agents + 1, -1);
+
+	agent_location[num_of_agents] = agent.start_locaton;
+	goal_locations[num_of_agents] = agent.goal_location;
+
+	num_of_agents += 1;
+}
+
 /* The idea is that whatever function is running instance will generate a list of places for each agent to move before calling this function
 * It is important that each position has also been linearized.
 */
 void Instance::timeStep(const vector<int>& moves){
-	// iterate through every agent
+	// See if we need to add any new agents
+	for(auto& agent : agent_list){
+		if(agent.spawn_time == simulator_time){
+			AddSingleAgent(agent);
+		}
+	}
+
+	// iterate through every existing agent
 	for (int i = 0; i < num_of_agents; i++) {
         // Once it works then we can update this to remove agents 
         if (agent_location[i] == goal_locations[i]){
@@ -438,6 +481,7 @@ bool Instance::loadAgents()
 	return false;
 
 	getline(myfile, line);
+	
 	if (line[0] == 'v') // Nathan's benchmark
 	{
 		if (num_of_agents == 0)
@@ -458,20 +502,39 @@ bool Instance::loadAgents()
 			beg++; // skip the columns
 			beg++; // skip the rows
 				   // read start [row,col] for agent i
+
+			struct Agent new_agent = {};
+
 			int col = atoi((*beg).c_str());
 			beg++;
 			int row = atoi((*beg).c_str());
 			agent_location[i] = linearizeCoordinate(row, col);
+			new_agent.start_locaton = agent_location[i];
 			// read goal [row,col] for agent i
 			beg++;
 			col = atoi((*beg).c_str());
 			beg++;
 			row = atoi((*beg).c_str());
 			goal_locations[i] = linearizeCoordinate(row, col);
+			new_agent.goal_location = goal_locations[i];
+			beg++; // skip y coordinate
+			beg++; // skip the optimal length
+			// add the spawn in time
+			int spawn_time = atoi((*beg).c_str());
+			new_agent.spawn_time = spawn_time;
+			agent_list.push_back(new_agent);
 		}
+		cout << agent_list[2].spawn_time << endl;
+		cout << agent_list[2].start_locaton << endl;
+		cout << agent_list[2].goal_location << endl;
+
+		cout << agent_list[1].spawn_time << endl;
+		cout << agent_list[1].start_locaton << endl;
+		cout << agent_list[1].goal_location << endl;
 	}
 	else // My benchmark
 	{
+		cout << "in Instance.cpp using the other benchmark. unsupported" << endl;
 		char_separator<char> sep(",");
 		tokenizer< char_separator<char> > tok(line, sep);
 		tokenizer< char_separator<char> >::iterator beg = tok.begin();
