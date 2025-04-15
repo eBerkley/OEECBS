@@ -1,7 +1,7 @@
 #include "ECBS.h"
 #include "SpaceTimeAStar.h"
 
-extern int current_timestep; // External variable that tracks the current simulation time
+#define current_timestep this->instance.simulator_time
 
 bool ECBS::solveReplanAll(double time_limit, int _cost_lowerbound) {
     this->cost_lowerbound = _cost_lowerbound;
