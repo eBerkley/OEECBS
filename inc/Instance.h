@@ -60,7 +60,7 @@ public:
 			degree++;
 		return degree;
 	}
-
+	vector<pair<int, int>> getAgentSets() const { return agent_sets; }
 	int getDefaultNumberOfAgents() const { return num_of_agents; }
 	void AddAgent(int amt_agents);
 	void removeAgent(int index);
@@ -73,6 +73,8 @@ private:
 	  string map_fname;
 	  string agent_fname;
 
+		// [<timestep, num of agents>...]
+		vector<pair<int, int>> agent_sets;
 	  int num_of_agents;
 	  vector<int> agent_location;
 	  vector<int> goal_locations;

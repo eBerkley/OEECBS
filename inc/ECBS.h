@@ -2,11 +2,17 @@
 #include "CBS.h"
 #include "ECBSNode.h"
 
+enum replan_type { REPLAN_SINGLE, REPLAN_SINGLE_GROUP, REPLAN_ALL };
+
 
 class ECBS : public CBS
 {
 public:
-	ECBS(const Instance& instance, bool sipp, int screen) : CBS(instance, sipp, screen) {}
+// TODO: delete this
+ECBS(Instance& instance, bool sipp, int screen) : CBS(instance, sipp, screen), instance(instance){}
+
+
+	ECBS(Instance& instance, bool sipp, int screen, replan_type replan) : CBS(instance, sipp, screen), batch(0), replanner(replan), agent_sets(instance.getAgentSets()), instance(instance){}
 
 	// ECBSNode* dummy_start = nullptr;
 	// ECBSNode* goal_node = nullptr;
@@ -16,7 +22,26 @@ public:
 	bool solve(double time_limit, int cost_lowerbound = 0);
     void clear(); // used for rapid random  restart
 
+	// ONLINE STUFF
+	bool solveReplan(double time_limit, int _cost_lowerbound);
+
 private:
+	// We are gonna be lazy here... lol
+	Instance& instance;
+
+	int batch;
+	// [<timestamp, num of agents>...]
+	vector<pair<int, int>> agent_sets;
+
+	bool solveReplanSingle(double time_limit, int _cost_lowerbound);
+	bool solveReplanSingleGroup(double time_limit, int _cost_lowerbound);
+	bool solveReplanAll(double time_limit, int _cost_lowerbound);
+
+	bool generateRootSingleGroup();
+	bool generateChildSingleGroup(ECBSNode* node, ECBSNode* parent);
+	
+	replan_type replanner;
+
 	vector<int> min_f_vals; // lower bounds of the cost of the shortest path
 	vector< pair<Path, int> > paths_found_initially;  // contain initial paths found
 
@@ -30,6 +55,7 @@ private:
 	void pushNode(ECBSNode* node);
 	ECBSNode* selectNode();
 	bool reinsertNode(ECBSNode* node);
+	void clearNodes();
 
 	 // high level search
 	bool generateChild(ECBSNode* child, ECBSNode* curr);

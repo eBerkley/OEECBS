@@ -1,8 +1,33 @@
 #include "ECBS.h"
 
+bool ECBS::solveReplan(double time_limit, int _cost_lowerbound) {
+	assert(batch != 0);
+	assert(batch < agent_sets.size());
+	num_of_agents += agent_sets[batch].second;
 
+	switch (replanner) {
+		case replan_type::REPLAN_SINGLE:
+			return solveReplanSingle(time_limit, _cost_lowerbound);
+
+		case replan_type::REPLAN_SINGLE_GROUP:
+			return solveReplanSingleGroup(time_limit, _cost_lowerbound);
+
+		case replan_type::REPLAN_ALL:
+			return solveReplanAll(time_limit, _cost_lowerbound);
+	}
+}
+
+
+bool ECBS::solveReplanAll(double time_limit, int _cost_lowerbound) {
+
+}
+
+// For simplicity, this function is only used for batch = 0, aka we don't need to change it. OFFLINE.
+// 
 bool ECBS::solve(double time_limit, int _cost_lowerbound)
 {
+	assert(this->batch == 0);
+
 	this->cost_lowerbound = _cost_lowerbound;
 	this->inadmissible_cost_lowerbound = 0;
 	this->time_limit = time_limit;
@@ -21,8 +46,9 @@ bool ECBS::solve(double time_limit, int _cost_lowerbound)
 	while (!cleanup_list.empty() && !solution_found)
 	{
 		auto curr = selectNode();
-		if (terminate(curr))
+		if (terminate(curr)) {
 			return solution_found;
+		}
 
 		if ((curr == dummy_start || curr->chosen_from == "cleanup") &&
 		     !curr->h_computed) // heuristics has not been computed yet
@@ -52,8 +78,10 @@ bool ECBS::solve(double time_limit, int _cost_lowerbound)
 			bool foundBypass = true;
 			while (foundBypass)
 			{
-				if (terminate(curr))
+				if (terminate(curr)) {
+					cout << endl << focal_list.size() << ", " << cleanup_list.size() << ", " << open_list.size() << endl;
 					return solution_found;
+				}
 				foundBypass = false;
 				ECBSNode* child[2] = { new ECBSNode() , new ECBSNode() };
 				curr->conflict = chooseConflict(*curr);
@@ -194,7 +222,7 @@ bool ECBS::solve(double time_limit, int _cost_lowerbound)
             heuristic_helper.updateOnlineHeuristicErrors(*curr); // update online heuristic errors
 		curr->clear();
 	}  // end of while loop
-
+	
 	return solution_found;
 }
 
