@@ -503,7 +503,7 @@ bool Instance::loadAgents()
 			beg++; // skip the rows
 				   // read start [row,col] for agent i
 
-			struct Agent new_agent = {};
+			struct Agent new_agent = {.index = i};
 
 			int col = atoi((*beg).c_str());
 			beg++;

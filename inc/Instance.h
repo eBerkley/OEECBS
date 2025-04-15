@@ -19,6 +19,7 @@ public:
 
 
 	struct Agent {
+		int index;
 		int start_locaton;
 		int goal_location;
 		int spawn_time;
@@ -103,5 +104,6 @@ private:
 
 	  // Class  SingleAgentSolver can access private members of Node 
 	  friend class SingleAgentSolver;
+		friend class SpaceTimeAStar;
 };
 

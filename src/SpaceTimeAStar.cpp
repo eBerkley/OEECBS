@@ -33,7 +33,7 @@ pair<Path, int> SpaceTimeAStar::findSuboptimalPath(const HLNode& node, const Con
     Path path;
     num_expanded = 0;
     num_generated = 0;
-
+    this->self->start_locaton;
     // build constraint table
     auto t = clock();
     ConstraintTable constraint_table(initial_constraints);
@@ -54,7 +54,7 @@ pair<Path, int> SpaceTimeAStar::findSuboptimalPath(const HLNode& node, const Con
     lowerbound =  max(holding_time, lowerbound);
 
     // generate start and add it to the OPEN & FOCAL list
-    auto start = new AStarNode(start_location, 0, max(lowerbound, my_heuristic[start_location]), nullptr, 0, 0);
+    auto start = new AStarNode(this->instance.agent_location[self->index], 0, max(lowerbound, my_heuristic[start_location]), nullptr, this->instance.simulator_time, 0);
 
     num_generated++;
     start->open_handle = open_list.push(start);

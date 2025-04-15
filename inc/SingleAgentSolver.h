@@ -80,7 +80,7 @@ class SingleAgentSolver
 public:
 	uint64_t num_expanded = 0;
 	uint64_t num_generated = 0;
-
+	const Instance::Agent *self;
 	double runtime_build_CT = 0; // runtime of building constraint table
 	double runtime_build_CAT = 0; // runtime of building conflict avoidance table
 
@@ -108,6 +108,7 @@ public:
 
 	SingleAgentSolver(const Instance& instance, int agent) :
 		instance(instance), //agent(agent), 
+		self(&instance.agent_list[agent]),
 		start_location(instance.agent_location[agent]),
 		goal_location(instance.goal_locations[agent])
 	{

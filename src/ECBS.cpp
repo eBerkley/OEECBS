@@ -19,10 +19,6 @@ bool ECBS::solveReplan(double time_limit, int _cost_lowerbound) {
 }
 
 
-bool ECBS::solveReplanAll(double time_limit, int _cost_lowerbound) {
-
-}
-
 // For simplicity, this function is only used for batch = 0, aka we don't need to change it. OFFLINE.
 // 
 bool ECBS::solve(double time_limit, int _cost_lowerbound)
@@ -387,7 +383,7 @@ bool ECBS::findPathForSingleAgent(ECBSNode*  node, int ag)
 }
 
 
-inline void ECBS::pushNode(ECBSNode* node)
+void ECBS::pushNode(ECBSNode* node)
 {
 	num_HL_generated++;
 	node->time_generated = num_HL_generated;
@@ -415,7 +411,7 @@ inline void ECBS::pushNode(ECBSNode* node)
 }
 
 
-inline bool ECBS::reinsertNode(ECBSNode* node)
+bool ECBS::reinsertNode(ECBSNode* node)
 {
 
 	switch (solver_type)
