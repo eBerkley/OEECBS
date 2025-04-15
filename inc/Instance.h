@@ -18,6 +18,12 @@ public:
 		int num_of_agents = 0, int num_of_rows = 0, int num_of_cols = 0, int num_of_obstacles = 0, int warehouse_width = 0);
 
 
+	struct Agent {
+		int start_locaton;
+		int goal_location;
+		int spawn_time;
+	};
+	
 	void printAgents() const;
 
 
@@ -62,7 +68,8 @@ public:
 	}
 	vector<pair<int, int>> getAgentSets() const { return agent_sets; }
 	int getDefaultNumberOfAgents() const { return num_of_agents; }
-	void AddAgent(int amt_agents);
+	void AddRandAgents(int amt_agents);
+	void AddSingleAgent(const Agent& agent);
 	void removeAgent(int index);
 	void timeStep(const vector<int>& moves);
 
@@ -72,6 +79,7 @@ private:
 	  vector<bool> my_map;
 	  string map_fname;
 	  string agent_fname;
+	  vector<Agent> agent_list; 
 
 		// [<timestep, num of agents>...]
 		vector<pair<int, int>> agent_sets;
