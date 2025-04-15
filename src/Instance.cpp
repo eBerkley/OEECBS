@@ -96,6 +96,9 @@ void Instance::AddAgent(int amt_agents){
 	num_of_agents += amt_agents;
 }
 
+/* The idea is that whatever function is running instance will generate a list of places for each agent to move before calling this function
+* It is important that each position has also been linearized.
+*/
 void Instance::timeStep(const vector<int>& moves){
 	// iterate through every agent
 	for (int i = 0; i < num_of_agents; i++) {
