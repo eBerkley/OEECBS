@@ -9,7 +9,8 @@ int RANDOM_WALK_STEPS = 100000;
 Instance::Instance(const string& map_fname, const string& agent_fname, 
 	int num_of_agents, int num_of_rows, int num_of_cols, int num_of_obstacles, int warehouse_width):
 	map_fname(map_fname), agent_fname(agent_fname), num_of_agents(num_of_agents)
-{
+	{
+	simulator_time = 0;
 	bool succ = loadMap();
 	if (!succ)
 	{
@@ -42,7 +43,90 @@ Instance::Instance(const string& map_fname, const string& agent_fname,
 	}
 
 }
+/* The idea is that this function will add n amounts of agents to a random position
+ * On the current map. 
+ * PARAMS: amt_agents is the number of agents to add
+ */
+void Instance::AddAgent(int amt_agents){
+	cout << "Adding " << num_of_agents << " agents to instance " << endl;
+	vector<bool> starts(map_size, false);
+	vector<bool> goals(map_size, false);
 
+	// Mark existing start and goal locations
+	for (int loc : agent_location){
+		if (loc >= 0) starts[loc] = true;
+	}
+	for (int loc : goal_locations){
+		if (loc >= 0) goals[loc] = true;
+	}
+
+	// Resize vectors to accommodate new agents
+	agent_location.resize(num_of_agents + amt_agents, -1);
+	goal_locations.resize(num_of_agents + amt_agents, -1);
+
+	// Choose random start locations
+	int k = num_of_agents;
+	while ( k < num_of_agents + amt_agents){
+		// Get a random position and convert it to the standard 1d format
+		int x = rand() % num_of_rows, y = rand() % num_of_cols;
+		int start = linearizeCoordinate(x, y);
+
+		// if we fail to place an agent then just move on and try again
+		if (my_map[start] || starts[start]){
+			continue;
+		}
+
+		// update start
+		agent_location[k] = start;
+		starts[start] = true;
+
+		// find goal
+		bool flag = false;
+		int goal = rand() % map_size; // randomWalk(start, RANDOM_WALK_STEPS);
+		while (my_map[goal] || goals[goal]){
+			goal = rand() % map_size; // randomWalk(goal, 1);
+		}
+
+		//update goal
+		goal_locations[k] = goal;
+		goals[goal] = true;
+
+		k++;
+	}
+	num_of_agents += amt_agents;
+}
+
+void Instance::timeStep(const vector<int>& moves){
+	// iterate through every agent
+	for (int i = 0; i < num_of_agents; i++) {
+        // Once it works then we can update this to remove agents 
+        if (agent_location[i] == goal_locations[i]){
+            continue;
+		}
+
+		// bounds check and update the agent
+		if (moves[i] >= 0 && moves[i] < map_size && !my_map[moves[i]]) {
+			agent_location[i] = moves[i];
+		} else {
+			cout << "TimeStep(): Invalid move requested" << endl;
+		}	
+    }
+	simulator_time++;
+}
+/* As the name implies this function is meant to remove one agent
+ * PARAMS: index is the index of the agent you want to remove in start_location and goal_locations
+ */
+void Instance::removeAgent(int index){
+	// Basic bounds checking
+	if (index < 0 || index >= num_of_agents){
+		cout << "Attempted to remove an invalid agent number" << endl;
+        return;
+	}
+
+	agent_location.erase(agent_location.begin() + index);
+	goal_locations.erase(goal_locations.begin() + index);
+	num_of_agents -= 1;
+}
 
 int Instance::randomWalk(int curr, int steps) const
 {
@@ -69,7 +153,7 @@ void Instance::generateRandomAgents(int warehouse_width)
 	cout << "Generate " << num_of_agents << " random start and goal locations " << endl;
 	vector<bool> starts(map_size, false);
 	vector<bool> goals(map_size, false);
-	start_locations.resize(num_of_agents);
+	agent_location.resize(num_of_agents);
 	goal_locations.resize(num_of_agents);
 
 	if (warehouse_width == 0)//Generate agents randomly
@@ -84,7 +168,7 @@ void Instance::generateRandomAgents(int warehouse_width)
 				continue;
 				
 			// update start
-			start_locations[k] = start;
+			agent_location[k] = start;
 			starts[start] = true;
 
 			// find goal
@@ -113,7 +197,7 @@ void Instance::generateRandomAgents(int warehouse_width)
 			if (starts[start])
 				continue;
 			// update start
-			start_locations[k] = start;
+			agent_location[k] = start;
 			starts[start] = true;
 
 			k++;
@@ -358,7 +442,7 @@ bool Instance::loadAgents()
 			cerr << "The number of agents should be larger than 0" << endl;
 			exit(-1);
 		}
-		start_locations.resize(num_of_agents);
+		agent_location.resize(num_of_agents);
 		goal_locations.resize(num_of_agents);
 		char_separator<char> sep("\t");
 		for (int i = 0; i < num_of_agents; i++)
@@ -374,7 +458,7 @@ bool Instance::loadAgents()
 			int col = atoi((*beg).c_str());
 			beg++;
 			int row = atoi((*beg).c_str());
-			start_locations[i] = linearizeCoordinate(row, col);
+			agent_location[i] = linearizeCoordinate(row, col);
 			// read goal [row,col] for agent i
 			beg++;
 			col = atoi((*beg).c_str());
@@ -389,7 +473,7 @@ bool Instance::loadAgents()
 		tokenizer< char_separator<char> > tok(line, sep);
 		tokenizer< char_separator<char> >::iterator beg = tok.begin();
 		num_of_agents = atoi((*beg).c_str());
-		start_locations.resize(num_of_agents);
+		agent_location.resize(num_of_agents);
 		goal_locations.resize(num_of_agents);
 		for (int i = 0; i<num_of_agents; i++)
 		{
@@ -401,7 +485,7 @@ bool Instance::loadAgents()
 			int row = atoi((*c_beg).c_str());
 			c_beg++;
 			int col = atoi((*c_beg).c_str());
-			start_locations[i] = linearizeCoordinate(row, col);
+			agent_location[i] = linearizeCoordinate(row, col);
 			// read goal [row,col] for agent i
 			c_beg++;
 			row = atoi((*c_beg).c_str());
@@ -420,7 +504,7 @@ void Instance::printAgents() const
 {
   for (int i = 0; i < num_of_agents; i++) 
   {
-    cout << "Agent" << i << " : S=(" << getRowCoordinate(start_locations[i]) << "," << getColCoordinate(start_locations[i]) 
+    cout << "Agent" << i << " : S=(" << getRowCoordinate(agent_location[i]) << "," << getColCoordinate(agent_location[i]) 
 				<< ") ; G=(" << getRowCoordinate(goal_locations[i]) << "," << getColCoordinate(goal_locations[i]) << ")" << endl;
   }
 }
@@ -437,7 +521,7 @@ void Instance::saveAgents() const
   }
   myfile << num_of_agents << endl;
   for (int i = 0; i < num_of_agents; i++)
-    myfile << getRowCoordinate(start_locations[i]) << "," << getColCoordinate(start_locations[i]) << ","
+    myfile << getRowCoordinate(agent_location[i]) << "," << getColCoordinate(agent_location[i]) << ","
            << getRowCoordinate(goal_locations[i]) << "," << getColCoordinate(goal_locations[i]) << "," << endl;
   myfile.close();
 }

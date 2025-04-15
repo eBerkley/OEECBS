@@ -103,12 +103,12 @@ public:
 	list<int> getNextLocations(int curr) const; // including itself and its neighbors
 	list<int> getNeighbors(int curr) const { return instance.getNeighbors(curr); }
 
-	// int getStartLocation() const {return instance.start_locations[agent]; }
+	// int getStartLocation() const {return instance.agent_location[agent]; }
 	// int getGoalLocation() const {return instance.goal_locations[agent]; }
 
 	SingleAgentSolver(const Instance& instance, int agent) :
 		instance(instance), //agent(agent), 
-		start_location(instance.start_locations[agent]),
+		start_location(instance.agent_location[agent]),
 		goal_location(instance.goal_locations[agent])
 	{
 		compute_heuristics();

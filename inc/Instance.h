@@ -9,6 +9,7 @@ public:
 	int num_of_cols;
 	int num_of_rows;
 	int map_size;
+	int simulator_time;
 
 	// enum valid_moves_t { NORTH, EAST, SOUTH, WEST, WAIT_MOVE, MOVE_COUNT };  // MOVE_COUNT is the enum's size
 
@@ -61,6 +62,10 @@ public:
 	}
 
 	int getDefaultNumberOfAgents() const { return num_of_agents; }
+	void AddAgent(int amt_agents);
+	void removeAgent(int index);
+	void timeStep(const vector<int>& moves);
+
 
 private:
 	  // int moves_offset[MOVE_COUNT];
@@ -69,7 +74,7 @@ private:
 	  string agent_fname;
 
 	  int num_of_agents;
-	  vector<int> start_locations;
+	  vector<int> agent_location;
 	  vector<int> goal_locations;
 
 	  bool loadMap();
