@@ -1,10 +1,38 @@
 #include "ECBS.h"
 
+bool ECBS::nextBatch() {
+	batch++;
+		
+	if (batch >= agent_sets.size()) {
+		return false;
+	}
+	cout << "Batch " << batch << endl;
+	int prev_agents = agent_sets[batch - 1].second;
+	int prev_timestamp = instance.simulator_time;
+	int timestamp = agent_sets[batch].first;
+	
+	int num_agents = agent_sets[batch].second;
+	num_of_agents += num_agents;
+
+
+	vector<int> moves (num_agents, -1);
+	for (int i = 0; i < prev_agents; i++) {
+		moves[i] = (*this->paths[i]) [timestamp].location;
+	}
+	
+	for (int i = prev_agents; i < num_agents; i++) {
+		moves[i] = instance.agent_list[i].start_locaton;
+	}
+	
+	instance.timeStep(moves, batch);
+	return true;
+}
+
 bool ECBS::solveReplan(double time_limit, int _cost_lowerbound) {
 	assert(batch != 0);
 	assert(batch < agent_sets.size());
 	runtime = 0;
-	num_of_agents += agent_sets[batch].second;
+	
 
 	switch (replanner) {
 		case replan_type::REPLAN_SINGLE:
@@ -16,6 +44,8 @@ bool ECBS::solveReplan(double time_limit, int _cost_lowerbound) {
 		case replan_type::REPLAN_ALL:
 			return solveReplanAll(time_limit, _cost_lowerbound);
 	}
+
+	return false;
 }
 
 

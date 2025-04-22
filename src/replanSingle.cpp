@@ -18,6 +18,7 @@ void ECBS::clearNodes() {
 
 bool ECBS::solveReplanSingle(double time_limit, int _cost_lowerbound) {
 	
+	return false;
 }
 
 bool ECBS::solveReplanSingleGroup(double time_limit, int _cost_lowerbound) {
@@ -252,7 +253,7 @@ bool ECBS::solveReplanSingleGroup(double time_limit, int _cost_lowerbound) {
 
 bool ECBS::generateRootSingleGroup() {
   auto root = this->dummy_start;
-
+	printPaths();
   paths.resize(num_of_agents, nullptr);
   min_f_vals.resize(num_of_agents);
   mdd_helper.init(num_of_agents);
@@ -267,10 +268,12 @@ bool ECBS::generateRootSingleGroup() {
   // TODO: This is replacing the functionality of CBS::shuffleAgents. Clearly it is not shuffling. Do we care?
   vector<int> agents(agent_sets[batch].second);
   for (int i = 0; i < agent_sets[batch].second; i++) {
-    agents[i] = num_of_agents - i;
+    agents[i] = num_of_agents - i - 1;
   }
+	
 
   for (auto ag : agents) {
+		// cout << ag << ": " << endl;
     paths_found_initially[ag] = search_engines[ag]->findSuboptimalPath(*root, initial_constraints[ag], paths, ag, 0, suboptimality);
     if (paths_found_initially[ag].first.empty()) {
       cerr << "the start-goal locations of agent " << ag << "are not connected" << endl; 

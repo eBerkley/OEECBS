@@ -1472,7 +1472,7 @@ CBS::CBS(vector<SingleAgentSolver*>& search_engines,
 
 CBS::CBS(const Instance& instance, bool sipp, int screen) :
 	screen(screen), suboptimality(1),
-	num_of_agents(instance.getDefaultNumberOfAgents()),
+	num_of_agents(instance.num_of_agents),
 	mdd_helper(initial_constraints, search_engines),
 	rectangle_helper(instance),
 	mutex_helper(instance, initial_constraints),

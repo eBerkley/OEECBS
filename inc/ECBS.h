@@ -12,7 +12,10 @@ public:
 ECBS(Instance& instance, bool sipp, int screen) : CBS(instance, sipp, screen), instance(instance){}
 
 
-	ECBS(Instance& instance, bool sipp, int screen, replan_type replan) : CBS(instance, sipp, screen), batch(0), replanner(replan), agent_sets(instance.getAgentSets()), instance(instance){}
+	ECBS(Instance& instance, bool sipp, int screen, replan_type replan) : CBS(instance, sipp, screen), batch(0), replanner(replan), agent_sets(instance.getAgentSets()), instance(instance){
+		num_of_agents = agent_sets[0].second;
+		instance.num_of_agents = num_of_agents;
+	}
 
 	// ECBSNode* dummy_start = nullptr;
 	// ECBSNode* goal_node = nullptr;
@@ -25,10 +28,7 @@ ECBS(Instance& instance, bool sipp, int screen) : CBS(instance, sipp, screen), i
 	// ONLINE STUFF
 	bool solveReplan(double time_limit, int _cost_lowerbound);
 
-	bool nextBatch() {
-		batch++;
-		return batch >= agent_sets.size();
-	}
+	bool nextBatch();
 private:
 	// We are gonna be lazy here... lol
 	Instance& instance;

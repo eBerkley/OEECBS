@@ -111,9 +111,11 @@ void Instance::AddSingleAgent(const Agent& agent){
 
 	// Mark existing start and goal locations
 	for (int loc : agent_location){
+		cout << "loc: " << loc << endl;
 		if (loc == agent.start_locaton){
-			cout << "Agent spawn location collided" << endl;
-			return;
+
+			cout << "Agent spawn location collided: " << loc << endl;
+			// return;
 		}
 	}
 	// Check for conflictics 
@@ -135,13 +137,20 @@ void Instance::AddSingleAgent(const Agent& agent){
 /* The idea is that whatever function is running instance will generate a list of places for each agent to move before calling this function
 * It is important that each position has also been linearized.
 */
-void Instance::timeStep(const vector<int>& moves){
+void Instance::timeStep(const vector<int>& moves, int batch){
+	int timestep = agent_sets[batch].first;
+	int num_agents = agent_sets[batch].second;
+
+	simulator_time = timestep;
+	cout << "batch: " << batch << ", timestep: " << timestep << endl;
+
 	// See if we need to add any new agents
 	for(auto& agent : agent_list){
 		if(agent.spawn_time == simulator_time){
 			AddSingleAgent(agent);
 		}
 	}
+	
 
 	// iterate through every existing agent
 	for (int i = 0; i < num_of_agents; i++) {
@@ -154,10 +163,14 @@ void Instance::timeStep(const vector<int>& moves){
 		if (moves[i] >= 0 && moves[i] < map_size && !my_map[moves[i]]) {
 			agent_location[i] = moves[i];
 		} else {
-			cout << "TimeStep(): Invalid move requested" << endl;
+			cout << "TimeStep( {";
+				for (auto m : moves) cout << m << " ";
+				cout << "}, " << timestep << 
+			"): Invalid move requested: " << moves[i] << endl;
 		}	
-    }
-	simulator_time++;
+  }
+
+	
 }
 /* As the name implies this function is meant to remove one agent
  * PARAMS: index is the index of the agent you want to remove in start_location and goal_locations
@@ -520,6 +533,7 @@ bool Instance::loadAgents()
 			beg++; // skip y coordinate
 			beg++; // skip the optimal length
 			// add the spawn in time
+			cout << "agent " << i << ": " << *beg << endl;
 			int spawn_time = atoi((*beg).c_str());
 			new_agent.spawn_time = spawn_time;
 			agent_list.push_back(new_agent);

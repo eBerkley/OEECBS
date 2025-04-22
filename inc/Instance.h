@@ -27,11 +27,9 @@ public:
 	
 	void printAgents() const;
 
-
 		inline bool isObstacle(int loc) const { return my_map[loc]; }
 		inline bool validMove(int curr, int next) const;
 		list<int> getNeighbors(int curr) const;
-
 
 		inline int linearizeCoordinate(int row, int col) const { return ( this->num_of_cols * row + col); }
 		inline int getRowCoordinate(int id) const { return id / this->num_of_cols; }
@@ -67,12 +65,29 @@ public:
 			degree++;
 		return degree;
 	}
-	vector<pair<int, int>> getAgentSets() const { return agent_sets; }
+	
+	// [<timestep, num of agents>...]
+	vector<pair<int, int>> getAgentSets() {
+		map<int, int> times; 
+		for (auto& ag : agent_list) {
+			if (times.find(ag.spawn_time) == times.end()) {
+				times[ag.spawn_time] = 1;
+			} else {
+				times[ag.spawn_time] += 1;
+			}
+		}
+		agent_sets.clear();
+		for (auto t : times ) {
+			agent_sets.push_back(t);
+		}
+
+		return agent_sets; 
+	}
 	int getDefaultNumberOfAgents() const { return num_of_agents; }
 	void AddRandAgents(int amt_agents);
 	void AddSingleAgent(const Agent& agent);
 	void removeAgent(int index);
-	void timeStep(const vector<int>& moves);
+	void timeStep(const vector<int>& moves, int timestep);
 
 
 private:
@@ -82,7 +97,6 @@ private:
 	  string agent_fname;
 	  vector<Agent> agent_list; 
 
-		// [<timestep, num of agents>...]
 		vector<pair<int, int>> agent_sets;
 	  int num_of_agents;
 	  vector<int> agent_location;
@@ -105,5 +119,7 @@ private:
 	  // Class  SingleAgentSolver can access private members of Node 
 	  friend class SingleAgentSolver;
 		friend class SpaceTimeAStar;
+		friend class CBS;
+		friend class ECBS;
 };
 

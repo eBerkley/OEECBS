@@ -54,7 +54,7 @@ pair<Path, int> SpaceTimeAStar::findSuboptimalPath(const HLNode& node, const Con
     lowerbound =  max(holding_time, lowerbound);
 
     // generate start and add it to the OPEN & FOCAL list
-    auto start = new AStarNode(this->instance.agent_location[self->index], 0, max(lowerbound, my_heuristic[start_location]), nullptr, this->instance.simulator_time, 0);
+    auto start = new AStarNode(this->instance.agent_location[self->index], 0, max(lowerbound, my_heuristic[this->instance.agent_location[self->index]]), nullptr, this->instance.simulator_time, 0);
 
     num_generated++;
     start->open_handle = open_list.push(start);
