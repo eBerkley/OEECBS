@@ -179,11 +179,13 @@ int main(int argc, char** argv)
 		double runtime = 0;
     int lowerbound = 0;
 
-		ecbs.solve(vm["cutoffTime"].as<double>() / runs, lowerbound);
+		auto res = ecbs.solve(vm["cutoffTime"].as<double>() / runs, lowerbound);
+		cout << "driver: " << res << endl;
 		runtime += ecbs.runtime;
 		
 		while(ecbs.nextBatch()){
-			ecbs.solveReplan(vm["cutoffTime"].as<double>() / runs, lowerbound);
+			res = ecbs.solveReplan(vm["cutoffTime"].as<double>() / runs, lowerbound);
+			cout << "driver: " << res << endl;
 			runtime += ecbs.runtime;
 		}
 

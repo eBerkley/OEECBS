@@ -111,7 +111,7 @@ void Instance::AddSingleAgent(const Agent& agent){
 
 	// Mark existing start and goal locations
 	for (int loc : agent_location){
-		cout << "loc: " << loc << endl;
+		// cout << "loc: " << loc << endl;
 		if (loc == agent.start_locaton){
 
 			cout << "Agent spawn location collided: " << loc << endl;

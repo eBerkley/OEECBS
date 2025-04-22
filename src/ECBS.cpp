@@ -32,6 +32,7 @@ bool ECBS::solveReplan(double time_limit, int _cost_lowerbound) {
 	assert(batch != 0);
 	assert(batch < agent_sets.size());
 	runtime = 0;
+	solution_found = false;
 	
 
 	switch (replanner) {
@@ -647,6 +648,8 @@ void ECBS::printPaths() const
 {
 	for (int i = 0; i < num_of_agents; i++)
 	{
+		if (paths[i] == nullptr)
+			continue;
 		cout << "Agent " << i << " (" << paths_found_initially[i].first.size() - 1 << " -->" <<
 			paths[i]->size() - 1 << "): ";
 		for (const auto & t : *paths[i])

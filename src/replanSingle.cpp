@@ -26,9 +26,9 @@ bool ECBS::solveReplanSingleGroup(double time_limit, int _cost_lowerbound) {
 	this->inadmissible_cost_lowerbound = 0;
 	this->time_limit = time_limit;
 
+	this->clearNodes();
 	this->dummy_start = this->goal_node;
 	this->goal_node = nullptr;
-	this->clearNodes();
 
 	// set timer
 	start = clock();
@@ -252,14 +252,23 @@ bool ECBS::solveReplanSingleGroup(double time_limit, int _cost_lowerbound) {
 }
 
 bool ECBS::generateRootSingleGroup() {
-  auto root = this->dummy_start;
-	printPaths();
+  auto root = dynamic_cast<ECBSNode *>(this->dummy_start);
   paths.resize(num_of_agents, nullptr);
   min_f_vals.resize(num_of_agents);
   mdd_helper.init(num_of_agents);
   
+	printPaths();
+	cout << root->constraints.size() << endl;
   paths_found_initially.resize(num_of_agents);
   
+	// Fixing a tricky segfault, paths[i] points to paths_found_initially[i].first,
+	// but the address changes w/ the resize line.
+	for (int i = 0; i < num_of_agents; i++) {
+		if (paths[i] == nullptr) {
+			continue;
+		}
+		paths[i] = &paths_found_initially[i].first;
+	}
   search_engines.resize(num_of_agents);
 
   for (int i = num_of_agents - agent_sets[batch].second; i < num_of_agents; i++) {
