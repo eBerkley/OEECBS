@@ -521,8 +521,12 @@ bool Instance::loadAgents()
 			int col = atoi((*beg).c_str());
 			beg++;
 			int row = atoi((*beg).c_str());
-			agent_location[i] = linearizeCoordinate(row, col);
-			new_agent.start_locaton = agent_location[i];
+			//agent_location[i] = linearizeCoordinate(row, col);
+			//new_agent.start_locaton = agent_location[i];
+			new_agent.start_locaton = linearizeCoordinate(row, col);
+			if(new_agent.spawn_time == 0){
+				agent_location[i] = new_agent.start_locaton;
+			}
 			// read goal [row,col] for agent i
 			beg++;
 			col = atoi((*beg).c_str());

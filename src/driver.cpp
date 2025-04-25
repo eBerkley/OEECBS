@@ -177,7 +177,7 @@ int main(int argc, char** argv)
         ecbs.setHighLevelSolver(s, vm["suboptimality"].as<double>());
 		// A place to put the main game loop
 		double runtime = 0;
-    int lowerbound = 0;
+		int lowerbound = 0;
 
 		auto res = ecbs.solve(vm["cutoffTime"].as<double>() / runs, lowerbound);
 		cout << "driver: " << res << endl;
