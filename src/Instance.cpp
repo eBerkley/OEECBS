@@ -545,6 +545,9 @@ bool Instance::loadAgents()
 		cout << agent_list[1].spawn_time << endl;
 		cout << agent_list[1].start_locaton << endl;
 		cout << agent_list[1].goal_location << endl;
+
+
+		this->initAgentSets();
 	}
 	else // My benchmark
 	{

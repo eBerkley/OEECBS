@@ -66,8 +66,7 @@ public:
 		return degree;
 	}
 	
-	// [<timestep, num of agents>...]
-	vector<pair<int, int>> getAgentSets() {
+	void initAgentSets() {
 		map<int, int> times; 
 		for (auto& ag : agent_list) {
 			if (times.find(ag.spawn_time) == times.end()) {
@@ -80,7 +79,11 @@ public:
 		for (auto t : times ) {
 			agent_sets.push_back(t);
 		}
-
+	}
+	
+	// [<timestep, num of agents>...]
+	vector<pair<int, int>> getAgentSets() const {
+		
 		return agent_sets; 
 	}
 	int getDefaultNumberOfAgents() const { return num_of_agents; }

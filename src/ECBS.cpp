@@ -14,7 +14,13 @@ bool ECBS::nextBatch() {
 	int num_agents = agent_sets[batch].second;
 	num_of_agents += num_agents;
 
+	initial_constraints.resize(num_of_agents, 
+		ConstraintTable(instance.num_of_cols, instance.map_size));
 
+	this->mdd_helper.init(num_of_agents);
+	this->heuristic_helper.updateNumOfAgents(num_of_agents);
+
+	
 	vector<int> moves (num_agents, -1);
 	for (int i = 0; i < prev_agents; i++) {
 		moves[i] = (*this->paths[i]) [timestamp].location;

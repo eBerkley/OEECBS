@@ -155,6 +155,12 @@ public:
 							MDDTable& mdd_helper) : num_of_agents(num_of_agents),
 		paths(paths), search_engines(search_engines), initial_constraints(initial_constraints), mdd_helper(mdd_helper) {}
 	
+	void updateNumOfAgents(int agents) 
+	{
+		num_of_agents = agents;
+		this->init();
+	}
+
 	void init()
 	{
 		if (type == heuristics_type::DG || type == heuristics_type::WDG)

@@ -1472,12 +1472,12 @@ CBS::CBS(vector<SingleAgentSolver*>& search_engines,
 
 CBS::CBS(const Instance& instance, bool sipp, int screen) :
 	screen(screen), suboptimality(1),
-	num_of_agents(instance.num_of_agents),
+	num_of_agents(instance.getAgentSets()[0].second),
 	mdd_helper(initial_constraints, search_engines),
 	rectangle_helper(instance),
 	mutex_helper(instance, initial_constraints),
 	corridor_helper(search_engines, initial_constraints),
-	heuristic_helper(instance.getDefaultNumberOfAgents(), paths, search_engines, initial_constraints, mdd_helper)
+	heuristic_helper(instance.getAgentSets()[0].second, paths, search_engines, initial_constraints, mdd_helper)
 {
 	clock_t t = clock();
 	initial_constraints.resize(num_of_agents, 
