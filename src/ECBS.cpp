@@ -654,12 +654,17 @@ void ECBS::printPaths() const
 {
 	for (int i = 0; i < num_of_agents; i++)
 	{
-		if (paths[i] == nullptr)
+		if (paths[i] == nullptr) {
+			cout << "Agent " << i << ": No path." << endl;
 			continue;
+		}
 		cout << "Agent " << i << " (" << paths_found_initially[i].first.size() - 1 << " -->" <<
 			paths[i]->size() - 1 << "): ";
-		for (const auto & t : *paths[i])
-			cout << t.location << "->";
+		
+		for (const auto & t : *paths[i]) {
+			auto coord = instance.getCoordinate(t.location);
+			cout << "(" << coord.first << "," << coord.second << ")" << "->";
+		}
 		cout << endl;
 	}
 }

@@ -255,20 +255,22 @@ bool ECBS::generateRootSingleGroup() {
   auto root = static_cast<ECBSNode *>(this->dummy_start);
   paths.resize(num_of_agents, nullptr);
   min_f_vals.resize(num_of_agents);
-  mdd_helper.init(num_of_agents);
+
   
-	printPaths();
 	cout << root->constraints.size() << endl;
 	int delta_time = this->agent_sets[batch].first - this->agent_sets[batch - 1].first;
 	for (int i = 0; i < paths_found_initially.size(); i++) {
 		// If the agent is either completed during or prior to the batch, we just keep it empty.
 		if (paths_found_initially[i].first.size() < delta_time) { 
 			paths_found_initially[i].first = Path();
+			search_engines[i]->start_location = search_engines[i]->goal_location;
+			
 			continue;
 		}
 		auto begin = paths_found_initially[i].first.begin() + delta_time;
 		auto end = paths_found_initially[i].first.end();
 		paths_found_initially[i].first = Path(begin, end);
+		search_engines[i]->start_location = instance.agent_location[i];
 		paths_found_initially[i].second = paths_found_initially[i].second - delta_time;
 	}
 
@@ -282,6 +284,7 @@ bool ECBS::generateRootSingleGroup() {
 		}
 		paths[i] = &paths_found_initially[i].first;
 	}
+	printPaths();
   search_engines.resize(num_of_agents);
 
   for (int i = num_of_agents - agent_sets[batch].second; i < num_of_agents; i++) {
