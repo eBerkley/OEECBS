@@ -105,31 +105,32 @@ void Instance::AddRandAgents(int amt_agents){
 }
 
 void Instance::AddSingleAgent(const Agent& agent){
+	int linear_start = agent.start_locaton; 
+    int linear_goal = agent.goal_location; 
+   
+
 	cout << "Adding " << num_of_agents << " agents to instance " << endl;
-	vector<bool> starts(map_size, false);
-	vector<bool> goals(map_size, false);
 
 	// Mark existing start and goal locations
 	for (int loc : agent_location){
 		// cout << "loc: " << loc << endl;
-		if (loc == agent.start_locaton){
-
+		if (loc == linear_start){
 			cout << "Agent spawn location collided: " << loc << endl;
 			// return;
 		}
 	}
 	// Check for conflictics 
-	if(my_map[agent.start_locaton] >= 0){
+	if(my_map[linear_start]){
 		cout << "agent collided with map" << endl;
-		return;
+		//return;
 	}
 
 	// Resize vectors to accommodate new agents
 	agent_location.resize(num_of_agents + 1, -1);
 	goal_locations.resize(num_of_agents + 1, -1);
 
-	agent_location[num_of_agents] = agent.start_locaton;
-	goal_locations[num_of_agents] = agent.goal_location;
+	agent_location[num_of_agents] = linear_start;
+	goal_locations[num_of_agents] = linear_goal;
 
 	num_of_agents += 1;
 }
@@ -150,7 +151,12 @@ void Instance::timeStep(const vector<int>& moves, int batch){
 			AddSingleAgent(agent);
 		}
 	}
-	
+
+	// Ensure moves vector matches number of active agents
+	if (moves.size() != static_cast<size_t>(num_of_agents)) {
+		cerr << "Error: moves vector size (" << moves.size() << ") does not match number of active agents (" << num_of_agents << ")" << endl;
+		exit(-1);
+	}	
 
 	// iterate through every existing agent
 	for (int i = 0; i < num_of_agents; i++) {
@@ -160,7 +166,7 @@ void Instance::timeStep(const vector<int>& moves, int batch){
 		}
 
 		// bounds check and update the agent
-		if (moves[i] >= 0 && moves[i] < map_size && !my_map[moves[i]]) {
+		if ( validMove(agent_location[i], moves[i]) && !my_map[moves[i]]) {
 			agent_location[i] = moves[i];
 		} else {
 			cout << "TimeStep( {";
@@ -524,9 +530,7 @@ bool Instance::loadAgents()
 			//agent_location[i] = linearizeCoordinate(row, col);
 			//new_agent.start_locaton = agent_location[i];
 			new_agent.start_locaton = linearizeCoordinate(row, col);
-			if(new_agent.spawn_time == 0){
-				agent_location[i] = new_agent.start_locaton;
-			}
+			cout << new_agent.start_locaton << endl;
 			// read goal [row,col] for agent i
 			beg++;
 			col = atoi((*beg).c_str());
@@ -540,6 +544,10 @@ bool Instance::loadAgents()
 			cout << "agent " << i << ": " << *beg << endl;
 			int spawn_time = atoi((*beg).c_str());
 			new_agent.spawn_time = spawn_time;
+			if(new_agent.spawn_time == 0){
+				cout << "agent spawns at t0" << endl;
+				agent_location[i] = new_agent.start_locaton;
+			}
 			agent_list.push_back(new_agent);
 		}
 		cout << agent_list[2].spawn_time << endl;
