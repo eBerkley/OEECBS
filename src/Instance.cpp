@@ -139,18 +139,6 @@ void Instance::AddSingleAgent(const Agent& agent){
 * It is important that each position has also been linearized.
 */
 void Instance::timeStep(const vector<int>& moves, int batch){
-	int timestep = agent_sets[batch].first;
-	int num_agents = agent_sets[batch].second;
-
-	simulator_time = timestep;
-	cout << "batch: " << batch << ", timestep: " << timestep << endl;
-
-	// See if we need to add any new agents
-	for(auto& agent : agent_list){
-		if(agent.spawn_time == simulator_time){
-			AddSingleAgent(agent);
-		}
-	}
 
 	// Ensure moves vector matches number of active agents
 	if (moves.size() != static_cast<size_t>(num_of_agents)) {
@@ -169,12 +157,24 @@ void Instance::timeStep(const vector<int>& moves, int batch){
 		if ( validMove(agent_location[i], moves[i]) && !my_map[moves[i]]) {
 			agent_location[i] = moves[i];
 		} else {
-			cout << "TimeStep( {";
+			cout << endl << "TimeStep( {";
 				for (auto m : moves) cout << m << " ";
-				cout << "}, " << timestep << 
+				cout << "}, " << simulator_time <<
 			"): Invalid move requested: " << moves[i] << endl;
-		}	
-  }
+		}
+	}	
+  
+	simulator_time = agent_sets[batch].first;
+	int num_agents = agent_sets[batch].second;
+
+	cout << "batch: " << batch << ", timestep: " << simulator_time << endl;
+
+	// See if we need to add any new agents
+	for(auto& agent : agent_list){
+		if(agent.spawn_time == simulator_time){
+			AddSingleAgent(agent);
+		}
+	}
 
 	
 }

@@ -20,17 +20,16 @@ bool ECBS::nextBatch() {
 	this->mdd_helper.init(num_of_agents);
 	this->heuristic_helper.updateNumOfAgents(num_of_agents);
 
+	moves_out.resize(num_agents, -1);
 	
-	vector<int> moves (num_agents, -1);
+	//vector<int> moves (num_agents, -1);
 	for (int i = 0; i < prev_agents; i++) {
-		moves[i] = (*this->paths[i]) [timestamp].location;
+		moves_out[i] = (*this->paths[i]) [timestamp].location;
 	}
 	
 	for (int i = prev_agents; i < num_agents; i++) {
-		moves[i] = instance.agent_list[i].start_locaton;
+		moves_out[i] = instance.agent_list[i].start_locaton;
 	}
-	
-	instance.timeStep(moves, batch);
 	return true;
 }
 

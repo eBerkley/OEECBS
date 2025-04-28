@@ -29,6 +29,8 @@ ECBS(Instance& instance, bool sipp, int screen) : CBS(instance, sipp, screen), i
 	bool solveReplan(double time_limit, int _cost_lowerbound);
 
 	bool nextBatch();
+
+	std::vector<int> moves_out;
 private:
 	// We are gonna be lazy here... lol
 	Instance& instance;

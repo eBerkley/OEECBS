@@ -189,6 +189,11 @@ int main(int argc, char** argv)
 			runtime += ecbs.runtime;
 		}
 
+		cout << "Moves:";
+		for (auto m : ecbs.moves_out) cout << m << " ";
+		cout << endl;
+		instance.timeStep(ecbs.moves_out , 0);
+
 		ecbs.runtime = runtime;
 		
 		if (vm.count("output"))
