@@ -142,8 +142,13 @@ void CBS::findConflicts(HLNode& curr)
 		for (auto it = new_agents.begin(); it != new_agents.end(); ++it)
 		{
 			int a1 = *it;
+			if (paths[a1] == nullptr || paths[a1]->empty())
+				continue;
+			
 			for (int a2 = 0; a2 < num_of_agents; a2++)
 			{
+				if (paths[a2] == nullptr || paths[a2]->empty())
+				continue;
 				if (a1 == a2)
 					continue;
 				bool skip = false;
@@ -164,8 +169,12 @@ void CBS::findConflicts(HLNode& curr)
 	{
 		for (int a1 = 0; a1 < num_of_agents; a1++)
 		{
+			if (paths[a1] == nullptr || paths[a1]->empty())
+				continue;
 			for (int a2 = a1 + 1; a2 < num_of_agents; a2++)
 			{
+				if (paths[a2] == nullptr || paths[a2]->empty())
+					continue;
 				findConflicts(curr, a1, a2);
 			}
 		}
@@ -1641,8 +1650,13 @@ bool CBS::validateSolution() const
 	for (int a1 = 0; a1 < num_of_agents; a1++)
 	{
 		soc += paths[a1]->size() - 1;
+		// solution_cost is calculated by decrementing when size == 0,
+		// so we stay consistent here.
+		if (paths[a1]->empty()) continue; 
+
 		for (int a2 = a1 + 1; a2 < num_of_agents; a2++)
 		{
+			if (paths[a2]->empty()) continue;
 			size_t min_path_length = paths[a1]->size() < paths[a2]->size() ? paths[a1]->size() : paths[a2]->size();
 			for (size_t timestep = 0; timestep < min_path_length; timestep++)
 			{

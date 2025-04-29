@@ -169,8 +169,9 @@ void ConstraintTable::insert2CAT(int agent, const vector<Path*>& paths)
 {
     for (size_t ag = 0; ag < paths.size(); ag++)
     {
-        if (ag == agent || paths[ag] == nullptr)
+        if (ag == agent || paths[ag] == nullptr || paths[ag]->empty())
             continue;
+        
         insert2CAT(*paths[ag]);
     }
 }

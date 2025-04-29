@@ -24,7 +24,12 @@ bool ECBS::nextBatch() {
 	
 	//vector<int> moves (num_agents, -1);
 	for (int i = 0; i < prev_agents; i++) {
-		moves_out[i] = (*this->paths[i]) [timestamp].location;
+		if (this->paths[i]->size() > timestamp - prev_timestamp) {
+			moves_out[i] = 0;
+		} else {
+
+			moves_out[i] = (*this->paths[i]) [timestamp - prev_timestamp].location;
+		}
 	}
 	
 	for (int i = prev_agents; i < num_of_agents; i++) {

@@ -7,11 +7,11 @@ void ECBS::clearNodes() {
 	this->focal_list.clear();
 	this->cleanup_list.clear();
   
-  for (auto& node : allNodes_table) {
-    if (node != this->goal_node) {
-      delete node;
-    }
-  }
+  // for (auto& node : allNodes_table) {
+  //   if (node != this->goal_node) {
+  //     delete node;
+  //   }
+  // }
 
   allNodes_table.clear();
 }
@@ -30,10 +30,13 @@ bool ECBS::solveReplanSingleGroup(double time_limit, int _cost_lowerbound) {
 	this->dummy_start = this->goal_node;
 	this->goal_node = nullptr;
 	this->dummy_start->constraints.clear();
-	if (this->dummy_start->parent != nullptr) {
-		// delete this->dummy_start->parent;
-		this->dummy_start->parent = nullptr;
-	}
+	// if (this->dummy_start->parent != nullptr) {
+	// 	delete this->dummy_start->parent;
+	// 	this->dummy_start->parent = nullptr;
+	// }
+
+	this->dummy_start->parent = nullptr;
+	static_cast<ECBSNode *>(this->dummy_start)->parent = nullptr;
 	
 	printPaths();
 
@@ -271,20 +274,21 @@ bool ECBS::generateRootSingleGroup() {
 	
 	updatePathsFoundInitially(root);
 	root->paths.clear();
-	
+
 	for (int i = 0; i < paths_found_initially.size(); i++) {
 		// If the agent is either completed during or prior to the batch, we just keep it empty.
 		if (paths_found_initially[i].first.size() < delta_time) { 
 			paths_found_initially[i].first = Path();
 			search_engines[i]->start_location = search_engines[i]->goal_location;
 			
-			continue;
+			// continue;
+		} else {
+			auto begin = paths_found_initially[i].first.begin() + delta_time;
+			auto end = paths_found_initially[i].first.end();
+			paths_found_initially[i].first = Path(begin, end);
+			search_engines[i]->start_location = instance.agent_location[i];
+			paths_found_initially[i].second = paths_found_initially[i].second - delta_time;
 		}
-		auto begin = paths_found_initially[i].first.begin() + delta_time;
-		auto end = paths_found_initially[i].first.end();
-		paths_found_initially[i].first = Path(begin, end);
-		search_engines[i]->start_location = instance.agent_location[i];
-		paths_found_initially[i].second = paths_found_initially[i].second - delta_time;
 	}
 	paths.resize(num_of_agents, nullptr);
   paths_found_initially.resize(num_of_agents);
