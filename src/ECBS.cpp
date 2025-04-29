@@ -13,23 +13,25 @@ bool ECBS::nextBatch() {
 	
 	int num_agents = agent_sets[batch].second;
 	num_of_agents += num_agents;
+	
+	moves_out.resize(num_of_agents, -1);
 
 	initial_constraints.resize(num_of_agents, 
 		ConstraintTable(instance.num_of_cols, instance.map_size));
 
 	this->mdd_helper.init(num_of_agents);
 	this->heuristic_helper.updateNumOfAgents(num_of_agents);
-
-	moves_out.resize(num_agents, -1);
 	
 	//vector<int> moves (num_agents, -1);
 	for (int i = 0; i < prev_agents; i++) {
 		moves_out[i] = (*this->paths[i]) [timestamp].location;
 	}
 	
-	for (int i = prev_agents; i < num_agents; i++) {
+	for (int i = prev_agents; i < num_of_agents; i++) {
 		moves_out[i] = instance.agent_list[i].start_locaton;
 	}
+
+	instance.timeStep(moves_out, batch);
 	return true;
 }
 
@@ -320,6 +322,15 @@ void ECBS::updatePaths(ECBSNode* curr)
 	}
 }
 
+void ECBS::updatePathsFoundInitially(ECBSNode* curr) {
+	updatePaths(curr);
+	for (int i = 0; i < paths.size(); i++) {
+		paths_found_initially[i].first = *paths[i];
+		paths[i] = &paths_found_initially[i].first; // no-op?
+
+		// paths_found_initially[i].second = min_f_vals[i];
+	}
+}
 
 bool ECBS::generateRoot()
 {
@@ -651,7 +662,8 @@ ECBSNode* ECBS::selectNode()
 
 void ECBS::printPaths() const
 {
-	for (int i = 0; i < num_of_agents; i++)
+	// for (int i = 0; i < num_of_agents; i++)
+	for (int i = 0; i < paths.size(); i++)
 	{
 		if (paths[i] == nullptr) {
 			cout << "Agent " << i << ": No path." << endl;
@@ -662,9 +674,13 @@ void ECBS::printPaths() const
 		
 		for (const auto & t : *paths[i]) {
 			auto coord = instance.getCoordinate(t.location);
-			cout << "(" << coord.first << "," << coord.second << ")" << "->";
+			cout << t.location << ":(" << coord.first << "," << coord.second << ")" << "->";
 		}
 		cout << endl;
+	}
+	for (int i = paths.size(); i < num_of_agents; i++)
+	{
+		cout << "Agent " << i << ": No path." << endl;
 	}
 }
 

@@ -29,6 +29,7 @@ public:
 
 		inline bool isObstacle(int loc) const { return my_map[loc]; }
 		inline bool validMove(int curr, int next) const;
+		inline bool validMove(int curr, int next, int time) const;
 		list<int> getNeighbors(int curr) const;
 
 		inline int linearizeCoordinate(int row, int col) const { return ( this->num_of_cols * row + col); }
@@ -90,7 +91,7 @@ public:
 	void AddRandAgents(int amt_agents);
 	void AddSingleAgent(const Agent& agent);
 	void removeAgent(int index);
-	void timeStep(const vector<int>& moves, int timestep);
+	void timeStep(const vector<int>& moves, int batch);
 
 
 private:
@@ -126,3 +127,4 @@ private:
 		friend class ECBS;
 };
 
+std::ostream& operator<<(std::ostream& os, const Instance::Agent& agent);

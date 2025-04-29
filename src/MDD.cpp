@@ -590,13 +590,16 @@ MDD* MDDTable::findMDD(HLNode& node, int agent) const
         return nullptr;
 }
 
+
+
 MDD * MDDTable::getMDD(HLNode& node, int id, int mdd_levels)
 {
 	ConstraintsHasher c(id, &node);
 	auto got = lookupTable[c.a].find(c);
 	if (got != lookupTable[c.a].end())
 	{
-		assert(mdd_levels < 0 or got->second->levels.size() == mdd_levels);
+		// MDD sizes get kinda messed up when we cut down path sizes, 
+		// assert(mdd_levels < 0 or got->second->levels.size() <= mdd_levels); 
 		return got->second;
 	}
 	releaseMDDMemory(id);

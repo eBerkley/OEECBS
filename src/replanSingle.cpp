@@ -11,7 +11,7 @@ void ECBS::clearNodes() {
     if (node != this->goal_node) {
       delete node;
     }
-  }  
+  }
 
   allNodes_table.clear();
 }
@@ -29,6 +29,13 @@ bool ECBS::solveReplanSingleGroup(double time_limit, int _cost_lowerbound) {
 	this->clearNodes();
 	this->dummy_start = this->goal_node;
 	this->goal_node = nullptr;
+	this->dummy_start->constraints.clear();
+	if (this->dummy_start->parent != nullptr) {
+		// delete this->dummy_start->parent;
+		this->dummy_start->parent = nullptr;
+	}
+	
+	printPaths();
 
 	// set timer
 	start = clock();
@@ -253,12 +260,16 @@ bool ECBS::solveReplanSingleGroup(double time_limit, int _cost_lowerbound) {
 
 bool ECBS::generateRootSingleGroup() {
   auto root = static_cast<ECBSNode *>(this->dummy_start);
-  paths.resize(num_of_agents, nullptr);
+  
   min_f_vals.resize(num_of_agents);
 
   
 	cout << root->constraints.size() << endl;
-	int delta_time = this->agent_sets[batch].first - this->agent_sets[batch - 1].first;
+	int delta_time = this->agent_sets[batch].first -
+		this->agent_sets[batch - 1].first;
+	
+	updatePathsFoundInitially(root);
+
 	for (int i = 0; i < paths_found_initially.size(); i++) {
 		// If the agent is either completed during or prior to the batch, we just keep it empty.
 		if (paths_found_initially[i].first.size() < delta_time) { 
@@ -273,7 +284,7 @@ bool ECBS::generateRootSingleGroup() {
 		search_engines[i]->start_location = instance.agent_location[i];
 		paths_found_initially[i].second = paths_found_initially[i].second - delta_time;
 	}
-
+	paths.resize(num_of_agents, nullptr);
   paths_found_initially.resize(num_of_agents);
   
 	// Fixing a tricky segfault, paths[i] points to paths_found_initially[i].first,
@@ -284,7 +295,8 @@ bool ECBS::generateRootSingleGroup() {
 		}
 		paths[i] = &paths_found_initially[i].first;
 	}
-	printPaths();
+
+	
   search_engines.resize(num_of_agents);
 
   for (int i = num_of_agents - agent_sets[batch].second; i < num_of_agents; i++) {
@@ -296,7 +308,7 @@ bool ECBS::generateRootSingleGroup() {
     agents[i] = num_of_agents - i - 1;
   }
 	
-
+	
   for (auto ag : agents) {
 		// cout << ag << ": " << endl;
     paths_found_initially[ag] = search_engines[ag]->findSuboptimalPath(*root, initial_constraints[ag], paths, ag, 0, suboptimality);
@@ -307,13 +319,24 @@ bool ECBS::generateRootSingleGroup() {
     paths[ag] = &paths_found_initially[ag].first;
     min_f_vals[ag] = paths_found_initially[ag].second;
 
-    root->makespan = max(root->makespan, paths[ag]->size() - 1);
-		root->g_val += min_f_vals[ag];
-		static_cast<ECBSNode *>(root)->sum_of_costs += (int)paths[ag]->size() - 1;
+    // root->makespan = max(root->makespan, paths[ag]->size() - 1);
+		// root->g_val += min_f_vals[ag];
+		// root->sum_of_costs += (int)paths[ag]->size() - 1;
+
 		num_LL_expanded += search_engines[ag]->num_expanded;
 		num_LL_generated += search_engines[ag]->num_generated;
 
   }
+
+	root->makespan = 0;
+	root->g_val = 0;
+	root->sum_of_costs = 0;
+
+	for (int ag = 0; ag < num_of_agents; ag++) {
+		root->makespan = max(root->makespan, paths[ag]->size() - 1);
+		root->g_val += min_f_vals[ag];
+		root->sum_of_costs += (int)paths[ag]->size() - 1;
+	}
 
   root->h_val = 0;
 	root->depth = 0;

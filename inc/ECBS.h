@@ -72,5 +72,7 @@ private:
 
 	//update information
 	void updatePaths(ECBSNode* curr);
+
+	void updatePathsFoundInitially(ECBSNode* curr);
 	void printPaths() const;
 };

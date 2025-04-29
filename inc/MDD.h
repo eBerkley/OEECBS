@@ -133,6 +133,8 @@ private:
 	const vector<ConstraintTable>& initial_constraints;
 	const vector<SingleAgentSolver*>& search_engines;
 	void releaseMDDMemory(int id);
+
+	friend class ECBS;
 };
 
 unordered_map<int, MDDNode*> collectMDDlevel(MDD* mdd, int i);

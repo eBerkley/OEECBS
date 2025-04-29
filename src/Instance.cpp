@@ -131,7 +131,7 @@ void Instance::AddSingleAgent(const Agent& agent){
 
 	agent_location[num_of_agents] = linear_start;
 	goal_locations[num_of_agents] = linear_goal;
-
+	cout << "added agent " << agent << endl;
 	num_of_agents += 1;
 }
 
@@ -141,10 +141,16 @@ void Instance::AddSingleAgent(const Agent& agent){
 void Instance::timeStep(const vector<int>& moves, int batch){
 
 	// Ensure moves vector matches number of active agents
-	if (moves.size() != static_cast<size_t>(num_of_agents)) {
+	if (moves.size() != static_cast<size_t>(num_of_agents + agent_sets[batch].second)) {
 		cerr << "Error: moves vector size (" << moves.size() << ") does not match number of active agents (" << num_of_agents << ")" << endl;
+		for (auto move : moves) 
+			cerr << move << " "; 
+		cerr  << endl;
 		exit(-1);
 	}	
+	int delta = agent_sets[batch].first - simulator_time;
+	simulator_time = agent_sets[batch].first;
+	cout << "timestep: delta, simulator_time: " << delta << ", " << simulator_time << endl;	
 
 	// iterate through every existing agent
 	for (int i = 0; i < num_of_agents; i++) {
@@ -154,7 +160,7 @@ void Instance::timeStep(const vector<int>& moves, int batch){
 		}
 
 		// bounds check and update the agent
-		if ( validMove(agent_location[i], moves[i]) && !my_map[moves[i]]) {
+		if ( validMove(agent_location[i], moves[i], delta) && !my_map[moves[i]]) {
 			agent_location[i] = moves[i];
 		} else {
 			cout << endl << "TimeStep( {";
@@ -164,7 +170,7 @@ void Instance::timeStep(const vector<int>& moves, int batch){
 		}
 	}	
   
-	simulator_time = agent_sets[batch].first;
+	
 	int num_agents = agent_sets[batch].second;
 
 	cout << "batch: " << batch << ", timestep: " << simulator_time << endl;
@@ -292,6 +298,15 @@ bool Instance::validMove(int curr, int next) const
 	if (my_map[next])
 		return false;
 	return getManhattanDistance(curr, next) < 2;
+}
+
+bool Instance::validMove(int curr, int next, int time) const
+{
+	if (next < 0 || next >= map_size)
+		return false;
+	if (my_map[next])
+		return false;
+	return getManhattanDistance(curr, next) < time + 1;
 }
 
 bool Instance::addObstacle(int obstacle)
@@ -488,6 +503,10 @@ void Instance::saveMap() const
 	myfile.close();
 }
 
+std::ostream& operator<<(std::ostream& os, const Instance::Agent& agent) {
+	os << "Agent " << agent.index << ": S=(" << agent.start_locaton << ") ; G=(" << agent.goal_location << "), t=" << agent.spawn_time;	
+	return os;
+}
 
 bool Instance::loadAgents()
 {
@@ -530,7 +549,6 @@ bool Instance::loadAgents()
 			//agent_location[i] = linearizeCoordinate(row, col);
 			//new_agent.start_locaton = agent_location[i];
 			new_agent.start_locaton = linearizeCoordinate(row, col);
-			cout << new_agent.start_locaton << endl;
 			// read goal [row,col] for agent i
 			beg++;
 			col = atoi((*beg).c_str());
@@ -541,22 +559,21 @@ bool Instance::loadAgents()
 			beg++; // skip y coordinate
 			beg++; // skip the optimal length
 			// add the spawn in time
-			cout << "agent " << i << ": " << *beg << endl;
 			int spawn_time = atoi((*beg).c_str());
 			new_agent.spawn_time = spawn_time;
 			if(new_agent.spawn_time == 0){
-				cout << "agent spawns at t0" << endl;
 				agent_location[i] = new_agent.start_locaton;
 			}
 			agent_list.push_back(new_agent);
+			cout << new_agent << endl;
 		}
-		cout << agent_list[2].spawn_time << endl;
-		cout << agent_list[2].start_locaton << endl;
-		cout << agent_list[2].goal_location << endl;
+		// cout << agent_list[2].spawn_time << endl;
+		// cout << agent_list[2].start_locaton << endl;
+		// cout << agent_list[2].goal_location << endl;
 
-		cout << agent_list[1].spawn_time << endl;
-		cout << agent_list[1].start_locaton << endl;
-		cout << agent_list[1].goal_location << endl;
+		// cout << agent_list[1].spawn_time << endl;
+		// cout << agent_list[1].start_locaton << endl;
+		// cout << agent_list[1].goal_location << endl;
 
 
 		this->initAgentSets();

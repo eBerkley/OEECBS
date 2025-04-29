@@ -1681,7 +1681,7 @@ bool CBS::validateSolution() const
 	}
 	if ((int)soc != solution_cost)
 	{
-		cout << "The solution cost is wrong!" << endl;
+		cout << "The solution cost is wrong! solution cost: " << solution_cost << ", Real cost: " << soc << endl;
 		return false;
 	}
 	return true;
