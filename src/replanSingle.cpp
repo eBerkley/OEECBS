@@ -41,7 +41,8 @@ bool ECBS::solveReplanSingleGroup(double time_limit, int _cost_lowerbound) {
 	start = clock();
 
   generateRootSingleGroup();
-
+	cout << "after generateRootSingleGroup" << endl;
+	printPaths();
 
 	while (!cleanup_list.empty() && !solution_found)
 	{
@@ -264,12 +265,13 @@ bool ECBS::generateRootSingleGroup() {
   min_f_vals.resize(num_of_agents);
 
   
-	cout << root->constraints.size() << endl;
+	cout << "root->constraints.size(): " << root->constraints.size() << endl;
 	int delta_time = this->agent_sets[batch].first -
 		this->agent_sets[batch - 1].first;
 	
 	updatePathsFoundInitially(root);
-
+	root->paths.clear();
+	
 	for (int i = 0; i < paths_found_initially.size(); i++) {
 		// If the agent is either completed during or prior to the batch, we just keep it empty.
 		if (paths_found_initially[i].first.size() < delta_time) { 
@@ -345,8 +347,8 @@ bool ECBS::generateRootSingleGroup() {
 	pushNode(static_cast<ECBSNode *>(root));
 	dummy_start = root;
 
-	if (screen >= 2) // print start and goals
-		printPaths();
+	// if (screen >= 2) // print start and goals
+	// 	printPaths();
 
 	return true;
 

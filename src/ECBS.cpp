@@ -326,7 +326,7 @@ void ECBS::updatePathsFoundInitially(ECBSNode* curr) {
 	updatePaths(curr);
 	for (int i = 0; i < paths.size(); i++) {
 		paths_found_initially[i].first = *paths[i];
-		paths[i] = &paths_found_initially[i].first; // no-op?
+		paths[i] = &paths_found_initially[i].first;
 
 		// paths_found_initially[i].second = min_f_vals[i];
 	}
