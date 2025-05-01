@@ -27,7 +27,6 @@ bool ECBS::nextBatch() {
 		if (this->paths[i]->size() > timestamp - prev_timestamp) {
 			moves_out[i] = 0;
 		} else {
-
 			moves_out[i] = (*this->paths[i]) [timestamp - prev_timestamp].location;
 		}
 	}
@@ -36,7 +35,7 @@ bool ECBS::nextBatch() {
 		moves_out[i] = instance.agent_list[i].start_locaton;
 	}
 
-	instance.timeStep(moves_out, batch);
+	//instance.timeStep(moves_out, batch);
 	return true;
 }
 

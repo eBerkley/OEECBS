@@ -176,26 +176,30 @@ int main(int argc, char** argv)
         ecbs.setSavingStats(vm["stats"].as<bool>());
         ecbs.setHighLevelSolver(s, vm["suboptimality"].as<double>());
 		// A place to put the main game loop
-		double runtime = 0;
-		int lowerbound = 0;
-
-		auto res = ecbs.solve(vm["cutoffTime"].as<double>() / runs, lowerbound);
-		cout << "driver: " << res << endl;
-		runtime += ecbs.runtime;
-		
-		while(ecbs.nextBatch()){
-			res = ecbs.solveReplan(vm["cutoffTime"].as<double>() / runs, lowerbound);
+		int x = 0;
+		while(x < 50){
+			double runtime = 0;
+			int lowerbound = 0;
+			
+			auto res = ecbs.solve(vm["cutoffTime"].as<double>() / runs, lowerbound);
 			cout << "driver: " << res << endl;
 			runtime += ecbs.runtime;
-		}
+			
+			
+			while(ecbs.nextBatch()){
+				res = ecbs.solveReplan(vm["cutoffTime"].as<double>() / runs, lowerbound);
+				cout << "driver: " << res << endl;
+				runtime += ecbs.runtime;
+			}
 
-		cout << "Moves:";
-		for (auto m : ecbs.moves_out) cout << m << " ";
-		cout << endl;
-		instance.timeStep(ecbs.moves_out , 0);
+			cout << "Moves:";
+			for (auto m : ecbs.moves_out) cout << m << " ";
+			cout << endl;
+			instance.timeStep(ecbs.moves_out , 0);
 
-		ecbs.runtime = runtime;
-		
+			ecbs.runtime = runtime;
+			x++;
+		}	
 		if (vm.count("output"))
 			ecbs.saveResults(vm["output"].as<string>(), vm["agents"].as<string>());
 		
@@ -238,7 +242,6 @@ int main(int argc, char** argv)
             ecbs.randomRoot = true;
             cout << "Failed to find solutions in Run " << i << endl;
         }
-        ecbs.runtime = runtime;
         if (vm.count("output"))
             ecbs.saveResults(vm["output"].as<string>(), vm["agents"].as<string>());
         if (ecbs.solution_found && vm.count("outputPaths"))

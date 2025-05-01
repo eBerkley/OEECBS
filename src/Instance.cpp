@@ -56,7 +56,7 @@ struct agent {
  * PARAMS: amt_agents is the number of agents to add
  */
 void Instance::AddRandAgents(int amt_agents){
-	cout << "Adding " << num_of_agents << " agents to instance " << endl;
+	cout << "There are currently: " << num_of_agents << " agents" << endl;
 	vector<bool> starts(map_size, false);
 	vector<bool> goals(map_size, false);
 
@@ -109,7 +109,7 @@ void Instance::AddSingleAgent(const Agent& agent){
     int linear_goal = agent.goal_location; 
    
 
-	cout << "Adding " << num_of_agents << " agents to instance " << endl;
+	cout << "There are currently " << num_of_agents << " agents" << endl;
 
 	// Mark existing start and goal locations
 	for (int loc : agent_location){
@@ -129,8 +129,8 @@ void Instance::AddSingleAgent(const Agent& agent){
 	agent_location.resize(num_of_agents + 1, -1);
 	goal_locations.resize(num_of_agents + 1, -1);
 
-	agent_location[num_of_agents] = linear_start;
-	goal_locations[num_of_agents] = linear_goal;
+	agent_location[num_of_agents-1] = linear_start;
+	goal_locations[num_of_agents-1] = linear_goal;
 	cout << "added agent " << agent << endl;
 	num_of_agents += 1;
 }

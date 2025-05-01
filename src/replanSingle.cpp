@@ -17,7 +17,6 @@ void ECBS::clearNodes() {
 }
 
 bool ECBS::solveReplanSingle(double time_limit, int _cost_lowerbound) {
-	
 	return false;
 }
 
@@ -27,6 +26,7 @@ bool ECBS::solveReplanSingleGroup(double time_limit, int _cost_lowerbound) {
 	this->time_limit = time_limit;
 
 	this->clearNodes();
+
 	this->dummy_start = this->goal_node;
 	this->goal_node = nullptr;
 	this->dummy_start->constraints.clear();
@@ -258,7 +258,7 @@ bool ECBS::solveReplanSingleGroup(double time_limit, int _cost_lowerbound) {
             heuristic_helper.updateOnlineHeuristicErrors(*curr); // update online heuristic errors
 		curr->clear();
 	}  // end of while loop
-
+	printPaths();
 	return solution_found;
 }
 
@@ -277,7 +277,9 @@ bool ECBS::generateRootSingleGroup() {
 
 	for (int i = 0; i < paths_found_initially.size(); i++) {
 		// If the agent is either completed during or prior to the batch, we just keep it empty.
-		if (paths_found_initially[i].first.size() <= delta_time) { 
+		//if (paths_found_initially[i].first.size() < delta_time) { 
+		//	paths_found_initially[i].first = Path();
+		 if (paths_found_initially[i].first.size() <= delta_time) { 
 			paths_found_initially[i].first = Path(1, PathEntry(search_engines[i]->goal_location));
 			search_engines[i]->start_location = search_engines[i]->goal_location;
 			
