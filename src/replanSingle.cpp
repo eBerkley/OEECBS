@@ -38,14 +38,14 @@ bool ECBS::solveReplanSingleGroup(double time_limit, int _cost_lowerbound) {
 	this->dummy_start->parent = nullptr;
 	static_cast<ECBSNode *>(this->dummy_start)->parent = nullptr;
 	
-	printPaths();
+	// printPaths();
 
 	// set timer
 	start = clock();
 
   generateRootSingleGroup();
 	// cout << "after generateRootSingleGroup" << endl;
-	// printPaths();
+	printPaths();
 
 	while (!cleanup_list.empty() && !solution_found)
 	{
@@ -274,6 +274,13 @@ bool ECBS::generateRootSingleGroup() {
 	
 	updatePathsFoundInitially(root);
 	root->paths.clear();
+	// cout << "moves_out: ";
+	// for (auto move : moves_out) {
+	// 	cout << move << " ";
+	// }
+	// cout << endl;
+
+	// cout << "current locs: " ;
 
 	for (int i = 0; i < paths_found_initially.size(); i++) {
 		// If the agent is either completed during or prior to the batch, we just keep it empty.
@@ -289,7 +296,16 @@ bool ECBS::generateRootSingleGroup() {
 			search_engines[i]->start_location = instance.agent_location[i];
 			paths_found_initially[i].second = paths_found_initially[i].second - delta_time;
 		}
+		moves_out[i] = paths_found_initially[i].first[0].location;
+		cout << paths_found_initially[i].first[0].location << " ";
 	}
+	for (int i = paths_found_initially.size(); i < num_of_agents; i++) {
+		moves_out[i] = instance.agent_list[i].start_locaton;
+		cout << instance.agent_location[i] << " ";
+	}
+	instance.timeStep(moves_out, batch);
+	// cout << endl;
+
 	paths.resize(num_of_agents, nullptr);
   paths_found_initially.resize(num_of_agents);
   
@@ -325,9 +341,6 @@ bool ECBS::generateRootSingleGroup() {
     paths[ag] = &paths_found_initially[ag].first;
     min_f_vals[ag] = paths_found_initially[ag].second;
 
-    // root->makespan = max(root->makespan, paths[ag]->size() - 1);
-		// root->g_val += min_f_vals[ag];
-		// root->sum_of_costs += (int)paths[ag]->size() - 1;
 
 		num_LL_expanded += search_engines[ag]->num_expanded;
 		num_LL_generated += search_engines[ag]->num_generated;

@@ -106,8 +106,7 @@ void Instance::AddRandAgents(int amt_agents){
 
 void Instance::AddSingleAgent(const Agent& agent){
 	int linear_start = agent.start_locaton; 
-    int linear_goal = agent.goal_location; 
-   
+	int linear_goal = agent.goal_location; 
 
 	cout << "Adding " << num_of_agents << " agents to instance " << endl;
 
@@ -465,14 +464,62 @@ bool Instance::loadMap()
 
 void Instance::printMap() const
 {
+	vector<vector<string>> map(num_of_rows, vector<string>(num_of_cols));
+
 	for (int i = 0; i< num_of_rows; i++)
 	{
 		for (int j = 0; j < num_of_cols; j++)
 		{
 			if (this->my_map[linearizeCoordinate(i, j)])
-				cout << '@';
+				// cout << '@';
+				map[i][j] = "@ ";
 			else
-				cout << '.';
+				// cout << '.';
+				map[i][j] = ". ";
+		}
+		// cout << endl;
+	}
+
+	for (int ag = 0; ag < num_of_agents; ag++)
+	{
+		int loc = agent_location[ag];
+		int row = getRowCoordinate(loc);
+		int col = getColCoordinate(loc);
+		assert(map[row][col] == ". ");
+		map[row][col] = std::to_string(ag);
+		if (map[row][col].length() == 1)
+			map[row][col] = " " + map[row][col];
+	}
+	int loc_ = agent_list[42].start_locaton;
+	int row_ = getRowCoordinate(loc_);
+	int col_ = getColCoordinate(loc_);
+	map[row_][col_] = "XX";
+
+	loc_ = agent_list[42].goal_location;
+	row_ = getRowCoordinate(loc_);
+	col_ = getColCoordinate(loc_);
+	map[row_][col_] = "YY";
+	
+	cout << "    ";
+	for (int j = 0; j < num_of_cols; j++)
+	{
+		if (j < 10)
+			cout << " " << j;
+		else
+			cout << j;
+		cout << " ";
+	}
+	cout << endl;
+	for (int i = 0; i < num_of_rows; i++)
+	{
+		if (i < 10)
+			cout << " " << i << "  ";
+		else
+			cout << i << "  ";
+
+		for (int j = 0; j < num_of_cols; j++)
+		{
+			cout << map[i][j] << " ";
 		}
 		cout << endl;
 	}
