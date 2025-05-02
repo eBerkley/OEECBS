@@ -7,3 +7,4 @@ Makefile
 eecbs
 paths.txt
 test.csv
+.vscode/
