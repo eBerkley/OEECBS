@@ -39,10 +39,19 @@ private:
 	// [<timestamp, num of agents>...]
 	vector<pair<int, int>> agent_sets;
 
-	bool solveReplanSingle(double time_limit, int _cost_lowerbound);
-	bool solveReplanSingleGroup(double time_limit, int _cost_lowerbound);
-	bool solveReplanAll(double time_limit, int _cost_lowerbound);
+	void updateStartNode();
 
+	bool solveReplanAll(double time_limit, int _cost_lowerbound);
+	bool generateRootAll();
+	bool generateChildAll(ECBSNode* node, ECBSNode* parent);
+	
+	bool solveReplanSingle(double time_limit, int _cost_lowerbound);
+	bool generateRootSingle();
+	bool generateChildSingle(ECBSNode* node, ECBSNode* parent);
+	// FOR REPLAN SINGLE
+	int agent_index = 0; 
+	
+	bool solveReplanSingleGroup(double time_limit, int _cost_lowerbound);
 	bool generateRootSingleGroup();
 	bool generateChildSingleGroup(ECBSNode* node, ECBSNode* parent);
 

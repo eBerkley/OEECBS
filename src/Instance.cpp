@@ -111,34 +111,34 @@ void Instance::AddSingleAgent(const Agent& agent){
 	cout << "There are currently " << num_of_agents << " agents" << endl;
 
 	// Mark existing start and goal locations
-	for (int loc : agent_location){
-		// cout << "loc: " << loc << endl;
-		if (loc == linear_start){
-			cout << "Agent spawn location collided: " << loc << endl;
-			// return;
-		}
-	}
+	// for (int loc : agent_location){
+	// 	// cout << "loc: " << loc << endl;
+	// 	if (loc == linear_start){
+	// 		cout << "Agent spawn location collided: " << loc << endl;
+	// 		// return;
+	// 	}
+	// }
 	// Check for conflictics 
 	if(my_map[linear_start]){
 		cout << "agent collided with map" << endl;
 		//return;
 	}
 
+	num_of_agents += 1;
 	// Resize vectors to accommodate new agents
-	agent_location.resize(num_of_agents + 1, -1);
-	goal_locations.resize(num_of_agents + 1, -1);
+	agent_location.resize(num_of_agents, -1);
+	goal_locations.resize(num_of_agents, -1);
 
 	agent_location[num_of_agents-1] = linear_start;
 	goal_locations[num_of_agents-1] = linear_goal;
 	cout << "added agent " << agent << endl;
-	num_of_agents += 1;
 }
 
 /* The idea is that whatever function is running instance will generate a list of places for each agent to move before calling this function
 * It is important that each position has also been linearized.
 */
 void Instance::timeStep(const vector<int>& moves, int batch){
-
+	
 	// Ensure moves vector matches number of active agents
 	if (moves.size() != static_cast<size_t>(num_of_agents + agent_sets[batch].second)) {
 		cerr << "Error: moves vector size (" << moves.size() << ") does not match number of active agents (" << num_of_agents << ")" << endl;
@@ -172,7 +172,6 @@ void Instance::timeStep(const vector<int>& moves, int batch){
 	
 	int num_agents = agent_sets[batch].second;
 
-	cout << "batch: " << batch << ", timestep: " << simulator_time << endl;
 
 	// See if we need to add any new agents
 	for(auto& agent : agent_list){
@@ -485,20 +484,15 @@ void Instance::printMap() const
 		int loc = agent_location[ag];
 		int row = getRowCoordinate(loc);
 		int col = getColCoordinate(loc);
-		assert(map[row][col] == ". ");
+		if (map[row][col] != ". ") {
+			cout << "err: agent" << ag << " at " << "( " << row << ", " << col << ") collided with agent " << map[row][col] << endl;
+			continue;
+		}
+		// assert(map[row][col] == ". ");
 		map[row][col] = std::to_string(ag);
 		if (map[row][col].length() == 1)
 			map[row][col] = " " + map[row][col];
 	}
-	int loc_ = agent_list[42].start_locaton;
-	int row_ = getRowCoordinate(loc_);
-	int col_ = getColCoordinate(loc_);
-	map[row_][col_] = "XX";
-
-	loc_ = agent_list[42].goal_location;
-	row_ = getRowCoordinate(loc_);
-	col_ = getColCoordinate(loc_);
-	map[row_][col_] = "YY";
 	
 	cout << "    ";
 	for (int j = 0; j < num_of_cols; j++)

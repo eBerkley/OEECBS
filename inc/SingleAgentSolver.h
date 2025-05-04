@@ -83,6 +83,8 @@ public:
 	const Instance::Agent *self;
 	double runtime_build_CT = 0; // runtime of building constraint table
 	double runtime_build_CAT = 0; // runtime of building conflict avoidance table
+	
+	bool plannable = true;
 
 	int start_location;
 	int goal_location;

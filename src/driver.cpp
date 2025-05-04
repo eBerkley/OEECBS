@@ -195,7 +195,7 @@ int main(int argc, char** argv)
 			cout << "Moves:";
 			for (auto m : ecbs.moves_out) cout << m << " ";
 			cout << endl;
-			instance.timeStep(ecbs.moves_out , 0);
+			// instance.timeStep(ecbs.moves_out , 0);
 
 			ecbs.runtime = runtime;
 			x++;

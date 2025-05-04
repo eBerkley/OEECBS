@@ -1,20 +1,46 @@
 #include "ECBS.h"
 
+void ECBS::updateStartNode() {
+	this->clearNodes();
+	this->dummy_start = this->goal_node;
+	this->goal_node = nullptr;
+	this->dummy_start->constraints.clear();
+
+	this->dummy_start->parent = nullptr;
+	static_cast<ECBSNode *>(this->dummy_start)->parent = nullptr;
+}
+
 bool ECBS::nextBatch() {
+	assert(solution_found);
 	batch++;
 		
 	if (batch >= agent_sets.size()) {
 		return false;
 	}
+
 	cout << "Batch " << batch << endl;
+	
+	updateStartNode();
+
 	int prev_agents = agent_sets[batch - 1].second;
 	int prev_timestamp = instance.simulator_time;
+
 	int timestamp = agent_sets[batch].first;
+
+	int delta_time = timestamp - prev_timestamp;
 	
 	int num_agents = agent_sets[batch].second;
 	num_of_agents += num_agents;
+
+	min_f_vals.resize(num_of_agents);
 	
 	moves_out.resize(num_of_agents, -1);
+	
+	auto root = static_cast<ECBSNode *>(this->dummy_start);
+	updatePathsFoundInitially(root);
+	root->paths.clear();
+
+	printPaths();
 
 	initial_constraints.resize(num_of_agents, 
 		ConstraintTable(instance.num_of_cols, instance.map_size));
@@ -22,20 +48,48 @@ bool ECBS::nextBatch() {
 	this->mdd_helper.init(num_of_agents);
 	this->heuristic_helper.updateNumOfAgents(num_of_agents);
 	
-	//vector<int> moves (num_agents, -1);
-	for (int i = 0; i < prev_agents; i++) {
-		if (this->paths[i]->size() > timestamp - prev_timestamp) {
-			moves_out[i] = 0;
+	for (int i = 0; i < paths_found_initially.size(); i++) {
+		// If the agent is either completed during or prior to the batch, we just keep it empty.
+		//if (paths_found_initially[i].first.size() < delta_time) { 
+		//	paths_found_initially[i].first = Path();
+		 if (paths_found_initially[i].first.size() <= delta_time) { 
+			paths_found_initially[i].first = Path(1, PathEntry(search_engines[i]->goal_location));
+			search_engines[i]->start_location = search_engines[i]->goal_location;
+			
+			// continue;
 		} else {
-			moves_out[i] = (*this->paths[i]) [timestamp - prev_timestamp].location;
+			auto begin = paths_found_initially[i].first.begin() + delta_time;
+			auto end = paths_found_initially[i].first.end();
+			paths_found_initially[i].first = Path(begin, end);
+			search_engines[i]->start_location = paths_found_initially[i].first[0].location;
+			paths_found_initially[i].second = paths_found_initially[i].second - delta_time;
 		}
+		moves_out[i] = paths_found_initially[i].first[0].location;
+		
 	}
-	
-	for (int i = prev_agents; i < num_of_agents; i++) {
+
+	for (int i = paths_found_initially.size(); i < num_of_agents; i++) {
 		moves_out[i] = instance.agent_list[i].start_locaton;
 	}
 
-	//instance.timeStep(moves_out, batch);
+	
+	
+	paths.resize(num_of_agents, nullptr);
+  paths_found_initially.resize(num_of_agents);
+	
+	// Fixing a tricky segfault, paths[i] points to paths_found_initially[i].first,
+	// but the address changes w/ the resize line.
+	for (int i = 0; i < num_of_agents; i++) {
+		if (paths[i] == nullptr) {
+			continue;
+		}
+		paths[i] = &paths_found_initially[i].first;
+	}
+
+
+
+
+	instance.timeStep(moves_out, batch);
 	return true;
 }
 

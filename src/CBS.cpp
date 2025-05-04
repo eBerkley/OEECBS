@@ -78,11 +78,19 @@ void CBS::findConflicts(HLNode& curr, int a1, int a2)
 			shared_ptr<Conflict> conflict(new Conflict());
 			if (target_reasoning && paths[a1]->size() == timestep + 1)
 			{
-				conflict->targetConflict(a1, a2, loc1, timestep);
+				if (search_engines[a1]->plannable) {
+					conflict->targetConflict(a1, a2, loc1, timestep);
+				} else {
+					conflict->targetConflict(a2, a1, loc1, timestep);
+				}
 			}
 			else if (target_reasoning && paths[a2]->size() == timestep + 1)
 			{
-				conflict->targetConflict(a2, a1, loc1, timestep);
+				if (search_engines[a2]->plannable) {
+					conflict->targetConflict(a2, a1, loc1, timestep);
+				} else {
+					conflict->targetConflict(a1, a2, loc1, timestep);
+				}
 			}
 			else
 			{
@@ -114,8 +122,13 @@ void CBS::findConflicts(HLNode& curr, int a1, int a2)
 			if (loc1 == loc2)
 			{
 				shared_ptr<Conflict> conflict(new Conflict());
-				if (target_reasoning)
-					conflict->targetConflict(a1_, a2_, loc1, timestep);
+				if (target_reasoning) {
+					if (search_engines[a1_]->plannable) {
+						conflict->targetConflict(a1_, a2_, loc1, timestep);
+					} else {
+						conflict->targetConflict(a2_, a1_, loc1, timestep);
+					}
+				}
 				else
 					conflict->vertexConflict(a1_, a2_, loc1, timestep);
 				assert(!conflict->constraint1.empty());
