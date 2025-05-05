@@ -108,7 +108,7 @@ void Instance::AddSingleAgent(const Agent& agent){
 	int linear_start = agent.start_locaton; 
 	int linear_goal = agent.goal_location; 
 
-	cout << "There are currently " << num_of_agents << " agents" << endl;
+	// cout << "There are currently " << num_of_agents << " agents" << endl;
 
 	// Mark existing start and goal locations
 	// for (int loc : agent_location){
@@ -131,7 +131,7 @@ void Instance::AddSingleAgent(const Agent& agent){
 
 	agent_location[num_of_agents-1] = linear_start;
 	goal_locations[num_of_agents-1] = linear_goal;
-	cout << "added agent " << agent << endl;
+	// cout << "added agent " << agent << endl;
 }
 
 /* The idea is that whatever function is running instance will generate a list of places for each agent to move before calling this function
@@ -149,7 +149,7 @@ void Instance::timeStep(const vector<int>& moves, int batch){
 	}	
 	int delta = agent_sets[batch].first - simulator_time;
 	simulator_time = agent_sets[batch].first;
-	cout << "timestep: delta, simulator_time: " << delta << ", " << simulator_time << endl;	
+	// cout << "timestep: delta, simulator_time: " << delta << ", " << simulator_time << endl;	
 
 	// iterate through every existing agent
 	for (int i = 0; i < num_of_agents; i++) {
@@ -606,7 +606,7 @@ bool Instance::loadAgents()
 				agent_location[i] = new_agent.start_locaton;
 			}
 			agent_list.push_back(new_agent);
-			cout << new_agent << endl;
+			// cout << new_agent << endl;
 		}
 		// cout << agent_list[2].spawn_time << endl;
 		// cout << agent_list[2].start_locaton << endl;

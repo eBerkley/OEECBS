@@ -175,31 +175,24 @@ int main(int argc, char** argv)
         ecbs.setNodeSelectionRule(n);
         ecbs.setSavingStats(vm["stats"].as<bool>());
         ecbs.setHighLevelSolver(s, vm["suboptimality"].as<double>());
-		// A place to put the main game loop
-		int x = 0;
-		while(x < 50){
-			double runtime = 0;
-			int lowerbound = 0;
-			
-			auto res = ecbs.solve(vm["cutoffTime"].as<double>() / runs, lowerbound);
-			cout << "driver: " << res << endl;
+		
+		double runtime = 0;
+		int lowerbound = 0;
+		
+		auto res = ecbs.solve(vm["cutoffTime"].as<double>() / runs, lowerbound);
+		runtime += ecbs.runtime;
+		int screen = vm["screen"].as<int>();
+		
+		while(ecbs.nextBatch()){
+			res = ecbs.solveReplan(vm["cutoffTime"].as<double>() / runs, lowerbound);	
 			runtime += ecbs.runtime;
-			
-			
-			while(ecbs.nextBatch()){
-				res = ecbs.solveReplan(vm["cutoffTime"].as<double>() / runs, lowerbound);
-				cout << "driver: " << res << endl;
-				runtime += ecbs.runtime;
-			}
+			if (screen > 1)
+				cout << "runtime: " << ecbs.runtime << endl;
+		}
 
-			cout << "Moves:";
-			for (auto m : ecbs.moves_out) cout << m << " ";
-			cout << endl;
-			// instance.timeStep(ecbs.moves_out , 0);
+		ecbs.runtime = runtime;
+		cout << "total runtime: " << ecbs.runtime << endl;
 
-			ecbs.runtime = runtime;
-			x++;
-		}	
 		if (vm.count("output"))
 			ecbs.saveResults(vm["output"].as<string>(), vm["agents"].as<string>());
 		

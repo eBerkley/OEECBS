@@ -17,8 +17,8 @@ bool ECBS::nextBatch() {
 	if (batch >= agent_sets.size()) {
 		return false;
 	}
-
-	cout << "Batch " << batch << endl;
+	if (screen > 0)
+		cout << "Batch " << batch << endl;
 	
 	updateStartNode();
 
@@ -30,17 +30,20 @@ bool ECBS::nextBatch() {
 	int delta_time = timestamp - prev_timestamp;
 	
 	int num_agents = agent_sets[batch].second;
+	
+	auto root = static_cast<ECBSNode *>(this->dummy_start);
+	
+	updatePathsFoundInitially(root);
+
 	num_of_agents += num_agents;
 
 	min_f_vals.resize(num_of_agents);
 	
 	moves_out.resize(num_of_agents, -1);
-	
-	auto root = static_cast<ECBSNode *>(this->dummy_start);
-	updatePathsFoundInitially(root);
-	root->paths.clear();
 
-	printPaths();
+	root->paths.clear();
+	if (screen > 1) 
+		printPaths();
 
 	initial_constraints.resize(num_of_agents, 
 		ConstraintTable(instance.num_of_cols, instance.map_size));
@@ -53,7 +56,7 @@ bool ECBS::nextBatch() {
 		//if (paths_found_initially[i].first.size() < delta_time) { 
 		//	paths_found_initially[i].first = Path();
 		 if (paths_found_initially[i].first.size() <= delta_time) { 
-			paths_found_initially[i].first = Path(1, PathEntry(search_engines[i]->goal_location));
+			paths_found_initially[i].first = Path(1, PathEntry(instance.agent_list[i].goal_location));
 			search_engines[i]->start_location = search_engines[i]->goal_location;
 			
 			// continue;
@@ -71,7 +74,6 @@ bool ECBS::nextBatch() {
 	for (int i = paths_found_initially.size(); i < num_of_agents; i++) {
 		moves_out[i] = instance.agent_list[i].start_locaton;
 	}
-
 	
 	
 	paths.resize(num_of_agents, nullptr);
@@ -85,9 +87,6 @@ bool ECBS::nextBatch() {
 		}
 		paths[i] = &paths_found_initially[i].first;
 	}
-
-
-
 
 	instance.timeStep(moves_out, batch);
 	return true;
@@ -357,6 +356,7 @@ void ECBS::adoptBypass(ECBSNode* curr, ECBSNode* child, const vector<int>& fmin_
 // also, do the same for ll_min_f_vals and paths_costs (since its already "on the way").
 void ECBS::updatePaths(ECBSNode* curr)
 {
+	assert(paths.size() == num_of_agents);
 	for (int i = 0; i < num_of_agents; i++)
 	{
 		paths[i] = &paths_found_initially[i].first;

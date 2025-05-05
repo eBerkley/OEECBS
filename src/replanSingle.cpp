@@ -29,8 +29,6 @@ bool ECBS::solveReplanSingle(double time_limit, int _cost_lowerbound) {
 
 				 generateRootSingle();
 
-				 printPaths();
-			 
 				 while (!cleanup_list.empty() && !solution_found)
 				 {
 					 auto curr = selectNode();
@@ -255,8 +253,8 @@ bool ECBS::solveReplanSingle(double time_limit, int _cost_lowerbound) {
 // ran by solveReplanSingle for each agent_index
 bool ECBS::generateRootSingle() {
   auto root = static_cast<ECBSNode *>(this->dummy_start);
-	
-  search_engines.resize(agent_index + 1);
+
+	search_engines.resize(agent_index + 1);
 	for (int i = 0; i < agent_index; i++) {
 		search_engines[i]->plannable = false;
 	}
@@ -332,14 +330,13 @@ bool ECBS::solveReplanSingleGroup(double time_limit, int _cost_lowerbound) {
 	this->inadmissible_cost_lowerbound = 0;
 	this->time_limit = time_limit;
 
-
-
 	// set timer
 	start = clock();
 
   generateRootSingleGroup();
-	// cout << "after generateRootSingleGroup" << endl;
-	printPaths();
+	
+	if (screen > 1)
+		printPaths();
 
 	while (!cleanup_list.empty() && !solution_found)
 	{
