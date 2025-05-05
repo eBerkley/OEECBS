@@ -68,7 +68,6 @@ bool ECBS::nextBatch() {
 			paths_found_initially[i].second = paths_found_initially[i].second - delta_time;
 		}
 		moves_out[i] = paths_found_initially[i].first[0].location;
-		
 	}
 
 	for (int i = paths_found_initially.size(); i < num_of_agents; i++) {
@@ -90,6 +89,21 @@ bool ECBS::nextBatch() {
 
 	instance.timeStep(moves_out, batch);
 	return true;
+}
+
+void ECBS::printBatchStats(const string &filename) const {
+	std::ifstream infile(filename);
+	bool exist = infile.good();
+
+	if (!exist) {
+		ofstream addHeads(filename);
+		addHeads << "Batch,Cost,Runtime" << endl;
+		addHeads.close();
+	}
+
+	ofstream stats(filename, std::ios::app);
+	stats << batch << "," << solution_cost << "," << runtime << endl;
+
 }
 
 bool ECBS::solveReplan(double time_limit, int _cost_lowerbound) {

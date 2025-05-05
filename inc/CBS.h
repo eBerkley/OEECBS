@@ -93,6 +93,11 @@ public:
 	void clear(); // used for rapid random  restart
 
 	int getInitialPathLength(int agent) const {return (int) paths_found_initially[agent].size() - 1; }
+
+	// print and save
+	void printResults() const;
+	static void printConflicts(const HLNode &curr) ;
+	int num_of_agents;
 protected:
     bool rectangle_reasoning;  // using rectangle reasoning
 	bool corridor_reasoning;  // using corridor reasoning
@@ -129,7 +134,6 @@ protected:
 	vector<ConstraintTable> initial_constraints;
 	clock_t start;
 
-	int num_of_agents;
 
 
 	vector<Path*> paths;
@@ -149,10 +153,6 @@ protected:
 	void computeSecondPriorityForConflict(Conflict& conflict, const HLNode& node);
 
 	inline void releaseNodes();
-
-	// print and save
-	void printResults() const;
-	static void printConflicts(const HLNode &curr) ;
 
 	bool validateSolution() const;
 	inline int getAgentLocation(int agent_id, size_t timestep) const;

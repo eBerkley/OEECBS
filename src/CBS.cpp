@@ -1148,14 +1148,17 @@ void CBS::savePaths(const string &fileName) const
 {
     std::ofstream output;
     output.open(fileName, std::ios::out);
-    for (int i = 0; i < num_of_agents; i++)
-    {
-        output << "Agent " << i << ": ";
-        for (const auto & t : *paths[i])
-            output << "(" << search_engines[0]->instance.getRowCoordinate(t.location)
-                   << "," << search_engines[0]->instance.getColCoordinate(t.location) << ")->";
-        output << endl;
-    }
+		for (int i = 0; i < num_of_agents; i++) {
+			output << "Agent " << i << ": " << paths[i]->size() - 1 << endl;
+		}
+    // for (int i = 0; i < num_of_agents; i++)
+    // {
+    //     output << "Agent " << i << "(" << paths[i]->size() - 1 << "): ";
+    //     for (const auto & t : *paths[i])
+    //         output << "(" << search_engines[0]->instance.getRowCoordinate(t.location)
+    //                << "," << search_engines[0]->instance.getColCoordinate(t.location) << ")->";
+    //     output << endl;
+    // }
     output.close();
 }
 
@@ -1662,10 +1665,8 @@ bool CBS::validateSolution() const
 	size_t soc = 0;
 	for (int a1 = 0; a1 < num_of_agents; a1++)
 	{
+		if (paths[a1]->empty()) continue; // needed for replan single
 		soc += paths[a1]->size() - 1;
-		// solution_cost is calculated by decrementing when size == 0,
-		// so we stay consistent here.
-		if (paths[a1]->empty()) continue; 
 
 		for (int a2 = a1 + 1; a2 < num_of_agents; a2++)
 		{

@@ -160,13 +160,21 @@ bool ECBS::generateRootAll() {
   }
 
   // TODO: This is replacing the functionality of CBS::shuffleAgents. Clearly it is not shuffling. Do we care?
-  vector<int> agents(agent_sets[batch].second);
-  for (int i = 0; i < agent_sets[batch].second; i++) {
-    agents[i] = num_of_agents - i - 1;
-  }
-  
+//   vector<int> agents(agent_sets[batch].second);
+//   for (int i = 0; i < agent_sets[batch].second; i++) {
+//     agents[i] = num_of_agents - i - 1;
+//   }
+  auto agents = shuffleAgents();
+
+//   for (auto ag : agents) {
+//     paths_found_initially[ag].first.clear();
+//     paths_found_initially[ag].second = 0;
+//     paths[ag] = nullptr;
+//     min_f_vals[ag] = 0;
+//   }
+
   for (auto ag : agents) {
-        // cout << ag << ": " << endl;
+
     paths_found_initially[ag] = search_engines[ag]->findSuboptimalPath(*root, initial_constraints[ag], paths, ag, 0, suboptimality);
     if (paths_found_initially[ag].first.empty()) {
       cerr << "the start-goal locations of agent " << ag << "are not connected" << endl; 

@@ -23,7 +23,7 @@ bool ECBS::solveReplanSingle(double time_limit, int _cost_lowerbound) {
 
 	// set timer
 	start = clock();
-
+	auto curr = static_cast<ECBSNode*>(dummy_start);
 	for (agent_index = num_of_agents - agent_sets[batch].second;
 	     agent_index < num_of_agents; agent_index++){
 
@@ -31,9 +31,9 @@ bool ECBS::solveReplanSingle(double time_limit, int _cost_lowerbound) {
 
 				 while (!cleanup_list.empty() && !solution_found)
 				 {
-					 auto curr = selectNode();
+					curr = selectNode();
 					 if (terminate(curr)) {
-						 return solution_found;
+							break;
 					 }
 			 
 					 if ((curr == dummy_start || curr->chosen_from == "cleanup") &&
@@ -66,7 +66,8 @@ bool ECBS::solveReplanSingle(double time_limit, int _cost_lowerbound) {
 						 while (foundBypass)
 						 {
 							 	if (terminate(curr)) {
-									return solution_found;
+									// return solution_found;
+									break;
 							 	}
 							 
 								foundBypass = false;
@@ -240,8 +241,18 @@ bool ECBS::solveReplanSingle(double time_limit, int _cost_lowerbound) {
 										heuristic_helper.updateOnlineHeuristicErrors(*curr); // update online heuristic errors
 						curr->clear();
 					}  // end of while loop
-	
-		updateStartNode();
+
+		if (!solution_found) {
+			cerr << "No solution found for agent " << agent_index << endl;
+			return false;
+		}
+		if (agent_index != num_of_agents - 1) {
+			
+
+			updateStartNode();
+			solution_found = false;
+		}
+		
 	}
 
 
@@ -288,7 +299,7 @@ bool ECBS::generateRootSingle() {
 	findConflicts(*root);
   heuristic_helper.computeQuickHeuristics(*root);
 
-	pushNode(static_cast<ECBSNode *>(root));
+	pushNode(root);
 
 	return true;
 }

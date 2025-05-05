@@ -144,18 +144,24 @@ int main(int argc, char** argv)
 	//////////////////////////////////////////////////////////////////////
     // initialize the solver
 	if (vm["online"].as<bool>()){
-		cout << "TESTING ONLINE" << endl;
 		// Default setup stuff
 		replan_type rtype;
+		string replan_str;
 		switch (vm["replan_type"].as<int>()) {
 			case 0:
 				rtype = replan_type::REPLAN_SINGLE;
+				replan_str = "single";
+				cout << "replan single" << endl;
 				break;
 			case 1: 
 				rtype = replan_type::REPLAN_SINGLE_GROUP;
+				replan_str = "single_group";
+				cout << "replan single group" << endl;
 				break;
 			case 2:
 				rtype = replan_type::REPLAN_ALL;
+				replan_str = "all";
+				cout << "replan all" << endl;
 				break;
 			default:
 				cerr << "invalid replan type: " << vm["replan_type"].as<int>() << endl;
@@ -178,6 +184,7 @@ int main(int argc, char** argv)
 		
 		double runtime = 0;
 		int lowerbound = 0;
+		string stats_file = "out/" + replan_str + vm["output"].as<string>();
 		
 		auto res = ecbs.solve(vm["cutoffTime"].as<double>() / runs, lowerbound);
 		runtime += ecbs.runtime;
@@ -186,21 +193,28 @@ int main(int argc, char** argv)
 		while(ecbs.nextBatch()){
 			res = ecbs.solveReplan(vm["cutoffTime"].as<double>() / runs, lowerbound);	
 			runtime += ecbs.runtime;
-			if (screen > 1)
-				cout << "runtime: " << ecbs.runtime << endl;
+			ecbs.printBatchStats(vm["output"].as<string>());
+			if (screen == 1) {
+				for (int i = 0; i < ecbs.num_of_agents; i++) {
+					cout << "agent " << i << ": ";
+					auto m = ecbs.paths_found_initially[i];
+					cout << m.second << endl;
+				}
+			}
 		}
 
 		ecbs.runtime = runtime;
 		cout << "total runtime: " << ecbs.runtime << endl;
+		cout << "solution cost: " << ecbs.solution_cost << endl;
 
-		if (vm.count("output"))
-			ecbs.saveResults(vm["output"].as<string>(), vm["agents"].as<string>());
+		// if (vm.count("output"))
+		// 	ecbs.saveResults(vm["output"].as<string>(), vm["agents"].as<string>());
 		
 		if (ecbs.solution_found && vm.count("outputPaths"))
 			ecbs.savePaths(vm["outputPaths"].as<string>());
 		
-		if (vm["stats"].as<bool>())
-			ecbs.saveStats(vm["output"].as<string>(), vm["agents"].as<string>());
+		// if (vm["stats"].as<bool>())
+		// 	ecbs.saveStats(vm["output"].as<string>(), vm["agents"].as<string>());
 
 		ecbs.clearSearchEngines();
 

@@ -30,7 +30,12 @@ ECBS(Instance& instance, bool sipp, int screen) : CBS(instance, sipp, screen), i
 
 	bool nextBatch();
 
+	void printPaths() const;
+
+	void printBatchStats(const string &filename) const;
+
 	std::vector<int> moves_out;
+	vector< pair<Path, int> > paths_found_initially;  // contain initial paths found
 private:
 	// We are gonna be lazy here... lol
 	Instance& instance;
@@ -58,7 +63,6 @@ private:
 	replan_type replanner;
 
 	vector<int> min_f_vals; // lower bounds of the cost of the shortest path
-	vector< pair<Path, int> > paths_found_initially;  // contain initial paths found
 
 	pairing_heap< ECBSNode*, compare<ECBSNode::compare_node_by_f> > cleanup_list; // it is called open list in ECBS
 	pairing_heap< ECBSNode*, compare<ECBSNode::compare_node_by_inadmissible_f> > open_list; // this is used for EES
@@ -83,5 +87,5 @@ private:
 	void updatePaths(ECBSNode* curr);
 
 	void updatePathsFoundInitially(ECBSNode* curr);
-	void printPaths() const;
+	
 };
