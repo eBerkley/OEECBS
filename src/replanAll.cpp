@@ -147,8 +147,8 @@ bool ECBS::solveReplanAll(double time_limit, int _cost_lowerbound) {
 
 bool ECBS::generateRootAll() {
   auto root = static_cast<ECBSNode *>(this->dummy_start);
-    
-  search_engines.resize(num_of_agents);
+
+  search_engines.resize(num_of_agents, nullptr);
 
   for (int i = num_of_agents - agent_sets[batch].second; i < num_of_agents; i++) {
     search_engines[i] = new SpaceTimeAStar(this->instance, i);
@@ -156,22 +156,17 @@ bool ECBS::generateRootAll() {
   }
 
   for (int i = 0; i < num_of_agents; i++ ) {
-    initial_constraints[i].clear();
+    initial_constraints[i].clear(); 
   }
 
-  // TODO: This is replacing the functionality of CBS::shuffleAgents. Clearly it is not shuffling. Do we care?
-//   vector<int> agents(agent_sets[batch].second);
-//   for (int i = 0; i < agent_sets[batch].second; i++) {
-//     agents[i] = num_of_agents - i - 1;
-//   }
   auto agents = shuffleAgents();
 
-//   for (auto ag : agents) {
-//     paths_found_initially[ag].first.clear();
-//     paths_found_initially[ag].second = 0;
-//     paths[ag] = nullptr;
-//     min_f_vals[ag] = 0;
-//   }
+  for (auto ag : agents) {
+    paths_found_initially[ag].first.clear();
+    paths_found_initially[ag].second = 0;
+    paths[ag] = nullptr;
+    min_f_vals[ag] = 0;
+  }
 
   for (auto ag : agents) {
 

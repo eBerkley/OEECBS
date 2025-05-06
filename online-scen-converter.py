@@ -1,18 +1,23 @@
 import sys
 import math
+import random
 
 if __name__ == "__main__":
     n = len(sys.argv)
     print(f"argc: {n}")
-    if(n != 4):
-        print("To call use python3 ***.py spawnInterval filenameIn filenameOut")
+    if(n != 7):
+        print("To call use python3 ***.py timeBetweenLow timeBetweenHigh agentsPerLow agentsPerHigh filenameIn filenameOut")
         print("For the spawn interval list the gaps in between agents, .25 = 4 agents per second; 4 = 1 agent per 4 time units")
     
-    amt_per_second = float(sys.argv[1])
-    input_file = sys.argv[2]
-    output_file = sys.argv[3]
+    time_between_low = float(sys.argv[1])
+    time_between_high = float(sys.argv[2])
+    agents_per_low = float(sys.argv[3])
+    agents_per_high = float(sys.argv[4])
 
-    print(f"a:{amt_per_second}; b:{input_file}; c:{output_file};")
+    input_file = sys.argv[5]
+    output_file = sys.argv[6]
+
+    print(f"time between:[{time_between_low},{time_between_high}); agents per: [{agents_per_low},{agents_per_high}); i:{input_file}; o:{output_file};")
 
     file = open(input_file, "r")
 
@@ -23,10 +28,16 @@ if __name__ == "__main__":
     file.close()
 
     # Iterate through each line adding a spawn time
-    count = 0
+    time = 0
+    agents_per = math.floor(random.uniform(agents_per_low, agents_per_high))
+
     for line in range(1, len(base_scenario)):
-        base_scenario[line] += f"\t {math.floor(count)}"
-        count += amt_per_second
+        if agents_per == 0:
+            agents_per = math.floor(random.uniform(agents_per_low, agents_per_high))
+            time += math.floor(random.uniform(time_between_low, time_between_high))
+
+        base_scenario[line] += f"\t {math.floor(time)}"
+        agents_per -= 1
         #print(base_scenario[line])
 
     # Construct output 

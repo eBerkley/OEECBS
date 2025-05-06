@@ -9,3 +9,5 @@ paths.txt
 test.csv
 .vscode/
 out/
+*_old
+gen/*

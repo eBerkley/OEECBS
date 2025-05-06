@@ -190,16 +190,17 @@ int main(int argc, char** argv)
 		runtime += ecbs.runtime;
 		int screen = vm["screen"].as<int>();
 		
-		while(ecbs.nextBatch()){
+		while(res && ecbs.nextBatch()){
 			res = ecbs.solveReplan(vm["cutoffTime"].as<double>() / runs, lowerbound);	
 			runtime += ecbs.runtime;
 			ecbs.printBatchStats(vm["output"].as<string>());
 			if (screen == 1) {
-				for (int i = 0; i < ecbs.num_of_agents; i++) {
-					cout << "agent " << i << ": ";
-					auto m = ecbs.paths_found_initially[i];
-					cout << m.second << endl;
-				}
+				ecbs.printPaths();
+				// for (int i = 0; i < ecbs.num_of_agents; i++) {
+				// 	cout << "agent " << i << ": ";
+				// 	auto m = ecbs.paths_found_initially[i];
+				// 	cout << m.second << endl;
+				// }
 			}
 		}
 

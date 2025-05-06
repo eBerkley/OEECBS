@@ -49,7 +49,6 @@ bool ECBS::solveReplanSingle(double time_limit, int _cost_lowerbound) {
 											 curr->clear();
 											 continue;
 									 }
-			 
 									 if (reinsertNode(curr)) {
 										 continue;
 									 }
@@ -209,6 +208,9 @@ bool ECBS::solveReplanSingle(double time_limit, int _cost_lowerbound) {
 									cout << "		Generate " << *child[i] << endl;
 							}
 						}
+						if (curr->conflict == nullptr && terminate(curr)) {
+							break;
+						}
 						switch (curr->conflict->type)
 						{
 						case conflict_type::RECTANGLE:
@@ -248,15 +250,11 @@ bool ECBS::solveReplanSingle(double time_limit, int _cost_lowerbound) {
 		}
 		if (agent_index != num_of_agents - 1) {
 			
-
 			updateStartNode();
 			solution_found = false;
 		}
 		
 	}
-
-
-	
 	return solution_found;
 }
 
@@ -317,7 +315,8 @@ bool ECBS::generateChildSingle(ECBSNode* node, ECBSNode* parent) {
 	assert(!agents.empty());
 	for (auto agent : agents)
 	{
-    if (agent < num_of_agents - agent_sets[batch].second)  {
+    // if (agent < num_of_agents - agent_sets[batch].second)  {
+		if (agent != agent_index) {
       continue;
     }
 		if (!findPathForSingleAgent(node, agent))
@@ -621,7 +620,6 @@ bool ECBS::generateRootSingleGroup() {
 	// 	printPaths();
 
 	return true;
-
 }
 
 bool ECBS::generateChildSingleGroup(ECBSNode* node, ECBSNode* parent) {

@@ -17,8 +17,7 @@ bool ECBS::nextBatch() {
 	if (batch >= agent_sets.size()) {
 		return false;
 	}
-	if (screen > 0)
-		cout << "Batch " << batch << endl;
+	
 	
 	updateStartNode();
 
@@ -28,7 +27,9 @@ bool ECBS::nextBatch() {
 	int timestamp = agent_sets[batch].first;
 
 	int delta_time = timestamp - prev_timestamp;
-	
+	if (screen > 0)
+		cout << "Batch " << batch << ": delta = " << delta_time << endl;
+
 	int num_agents = agent_sets[batch].second;
 	
 	auto root = static_cast<ECBSNode *>(this->dummy_start);
@@ -58,6 +59,7 @@ bool ECBS::nextBatch() {
 		 if (paths_found_initially[i].first.size() <= delta_time) { 
 			paths_found_initially[i].first = Path(1, PathEntry(instance.agent_list[i].goal_location));
 			search_engines[i]->start_location = search_engines[i]->goal_location;
+			paths_found_initially[i].second = 0;
 			
 			// continue;
 		} else {
@@ -68,6 +70,7 @@ bool ECBS::nextBatch() {
 			paths_found_initially[i].second = paths_found_initially[i].second - delta_time;
 		}
 		moves_out[i] = paths_found_initially[i].first[0].location;
+		min_f_vals[i] = paths_found_initially[i].second;
 	}
 
 	for (int i = paths_found_initially.size(); i < num_of_agents; i++) {
@@ -97,12 +100,16 @@ void ECBS::printBatchStats(const string &filename) const {
 
 	if (!exist) {
 		ofstream addHeads(filename);
-		addHeads << "Batch,Cost,Runtime" << endl;
+		addHeads << "Batch,Sum Of Costs,Makespan,Runtime" << endl;
 		addHeads.close();
 	}
-
 	ofstream stats(filename, std::ios::app);
-	stats << batch << "," << solution_cost << "," << runtime << endl;
+	if (solution_found == false) {
+		stats << batch << "," << -1 << "," << -1 << "," << runtime << endl;
+		return;
+	}
+	
+	stats << batch << "," << solution_cost << "," << dummy_start->makespan << "," << runtime << endl;
 
 }
 
@@ -483,7 +490,11 @@ bool ECBS::generateChild(ECBSNode*  node, ECBSNode* parent)
 bool ECBS::findPathForSingleAgent(ECBSNode*  node, int ag)
 {
 	clock_t t = clock();
-	auto new_path = search_engines[ag]->findSuboptimalPath(*node, initial_constraints[ag], paths, ag, min_f_vals[ag], suboptimality);
+	std::pair<Path, int> new_path;
+
+	new_path = search_engines[ag]->findSuboptimalPath(
+		*node, initial_constraints[ag], paths, ag, min_f_vals[ag], suboptimality);
+
 	num_LL_expanded += search_engines[ag]->num_expanded;
 	num_LL_generated += search_engines[ag]->num_generated;
 	runtime_build_CT += search_engines[ag]->runtime_build_CT;
