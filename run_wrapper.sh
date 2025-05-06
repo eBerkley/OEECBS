@@ -19,6 +19,6 @@ for scen in gen/*.scen; do
 
   map=$(ls maps | grep $mapname | head -n 1)
   echo $i / $scens : scenario = $scen_name, map = $map
-  # ./run.sh bench $scen_name maps/$map
+  ./run.sh bench $scen_name maps/$map
   (( i++ ))
 done
